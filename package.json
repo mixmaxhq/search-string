@@ -5,15 +5,18 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "testWatch": "jest --watch"
+    "testWatch": "jest --watch",
+    "babelWatch": "babel --watch src/ -d dist/node/ --copy-files"
   },
-  "author": "marcus@mixmax.com",
-  "license": "ISC",
+  "author": "Marcus Ericsson <marcus@mixmax.com> (https://mixmax.com)",
+  "license": "MIT",
   "repository": "git@github.com:mixmaxhq/search-string.git",
   "dependencies": {
     "lodash": "^4.17.4"
   },
   "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.0",
     "eslint": "^4.7.2",
     "eslint-config-mixmax": "^0.7.0",
     "jest": "^21.1.0",
