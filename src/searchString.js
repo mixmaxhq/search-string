@@ -1,16 +1,21 @@
 class SearchString {
-  constructor(conditionArray, conditionMap, textSegments, negatedWords = []) {
+  constructor(conditionArray, conditionMap, textSegments) {
     this.conditionArray = conditionArray;
     this.conditionMap = conditionMap;
     this.textSegments = textSegments;
-    this.negatedWords = negatedWords;
   }
 
-  static parse(str, rangeKeywords = []) {
+  /**
+   * 
+   * @param {String} String to parse
+   * @param {Object} options
+   *    @param {Array} rangeKeywords - keywords should look out for to construct time ranges
+   */
+  static parse(str, options = {}) {
+    const rangeKeywords = options.rangeKeywords || [];
     const conditionArray = [];
     const conditionMap = {};
     const textSegments = [];
-    const negatedWords = [];
 
     const addEntry = (key, value, negated) => {
       const mapValue = { value, negated };
@@ -61,16 +66,22 @@ class SearchString {
         } else {
           addEntry(key, value, negated);
         }
-      } else if (term.indexOf('-') === 0) {
-        negatedWords.push(term.slice(1));
       } else {
+        const negated = term.indexOf('-') === 0;
+        let text= term;
+        if (negated) {
+          text = text.slice(1);
+        }
         // Strip surrounding quotes
-        const textSegment = term.replace(/^\"|\"$|^\'|\'$/g, '');
+        text = text.replace(/^\"|\"$|^\'|\'$/g, '');
 
-        textSegments.push(textSegment);
+        textSegments.push({
+          text,
+          negated
+        });
       }
     }
-    return new SearchString(conditionArray, conditionMap, textSegments, negatedWords);
+    return new SearchString(conditionArray, conditionMap, textSegments);
   }
 
   getNumUniqueConditionKeys() {
@@ -93,7 +104,7 @@ class SearchString {
   }
 
   getText() {
-    return this.textSegments.join(' ');
+    return this.textSegments.filter((textSegment) => !textSegment.negated).map((textSegment) => textSegment.text).join(' ');
   }
 
   getTextSegments() {
@@ -101,7 +112,7 @@ class SearchString {
   }
 
   getNegatedWords() {
-    return this.negatedWords;
+    return this.textSegments.filter((textSegment) => textSegment.negated).map((textSegment) => textSegment.text);
   }
 
   toString() {

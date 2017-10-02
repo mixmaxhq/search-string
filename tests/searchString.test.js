@@ -1,4 +1,4 @@
-const SearchString = require('../searchString');
+const SearchString = require('../src/searchString');
 
 describe('searchString', () => {
   test('basic', () => {
@@ -38,7 +38,7 @@ describe('searchString', () => {
   test('search-query-parser example', () => {
     const str =
       'from:hi@retrace.io,foo@gmail.com to:me subject:vacations date:1/10/2013-15/04/2014 photos';
-    const parsed = SearchString.parse(str, ['date']);
+    const parsed = SearchString.parse(str, { rangeKeywords: ['date'] });
     const conditionMap = parsed.getConditionMap();
     expect(parsed.getNumUniqueConditionKeys()).toEqual(4);
     expect(conditionMap.from).toEqual({
@@ -97,7 +97,13 @@ describe('searchString', () => {
   test('several quoted strings', () => {
     const str = '"string one" "string two"';
     const parsed = SearchString.parse(str);
-    expect(parsed.getTextSegments()).toEqual(['string one', 'string two']);
+    expect(parsed.getTextSegments()).toEqual([
+      {
+        text: 'string one',
+        negated: false
+      },
+      { text: 'string two', negated: false }
+    ]);
     expect(parsed.getNumUniqueConditionKeys()).toEqual(0);
   });
   test('quoted semicolon string', () => {
