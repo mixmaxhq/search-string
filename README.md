@@ -1,6 +1,6 @@
 # Search String
 
-> Another simple parser for advanced search query syntax.
+> Another simple parser for advanced search query syntax. Inspired by [search-query-parser](https://github.com/nepsilon/search-query-parser).
 
 ## Installation
 
