@@ -4,8 +4,22 @@
   "description": "Another parser for advanced search query syntax.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "babelBuild": "babel src/ -d dist/node/ --copy-files",
+    "babelWatch": "babel --watch src/ -d dist/node/ --copy-files",
+    "prepublish": "npm run babelBuild",
+    "test": "jest",
+    "testWatch": "jest --watch"
   },
-  "author": "mericsson@gmail.com",
-  "license": "ISC"
+  "author": "Marcus Ericsson <marcus@mixmax.com> (https://mixmax.com)",
+  "license": "MIT",
+  "repository": "git@github.com:mixmaxhq/search-string.git",
+  "dependencies": {},
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.0",
+    "eslint": "^4.7.2",
+    "eslint-config-mixmax": "^0.7.0",
+    "jest": "^21.1.0",
+    "jest-cli": "^21.1.0"
+  }
 }
