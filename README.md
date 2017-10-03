@@ -19,7 +19,7 @@ const searchString = SearchString.parse(str);
 
 /* Get text */
 
-// [ { text: 'foorbar1', negated: false, { text: 'foobar2', negated: true } ]
+// [ { text: 'foorbar1', negated: false }, { text: 'foobar2', negated: true } ]
 searchString.getTextSegments();
 
 
