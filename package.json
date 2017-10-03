@@ -3,6 +3,7 @@
   "version": "1.1.0",
   "description": "Another parser for advanced search query syntax.",
   "main": "index.js",
+  "files": ["index.js", "src", "dist"],
   "scripts": {
     "babelBuild": "babel src/ -d dist/node/ --copy-files",
     "babelWatch": "babel --watch src/ -d dist/node/ --copy-files",
