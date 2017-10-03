@@ -1,6 +1,23 @@
 const SearchString = require('../src/searchString');
 
 describe('searchString', () => {
+  test('empty', () => {
+    expect(SearchString.parse().getConditionMap()).toEqual({});
+    expect(SearchString.parse('').getConditionMap()).toEqual({});
+  });
+  test('bad input', () => {
+    expect(SearchString.parse('to:').getConditionMap()).toEqual({
+      to: { value: '', negated: false }
+    });
+    expect(SearchString.parse('quoted text"').getTextSegments()[0]).toEqual({
+      text: 'quoted',
+      negated: false
+    });
+    expect(SearchString.parse('quoted text"').getTextSegments()[1]).toEqual({
+      text: 'text',
+      negated: false
+    });
+  });
   test('basic', () => {
     const str = 'to:me -from:joe@acme.com foobar';
     const parsed = SearchString.parse(str);
@@ -79,7 +96,7 @@ describe('searchString', () => {
       }
     ]);
     expect(conditionMap.op2).toEqual({
-      value: ['multi', "'word'", 'value'],
+      value: "multi, 'word', value",
       negated: false
     });
     expect(conditionMap.op3).toEqual({
@@ -90,7 +107,7 @@ describe('searchString', () => {
     expect(conditionArray).toEqual([
       { key: 'op1', value: 'value', negated: false },
       { key: 'op1', value: 'value2', negated: false },
-      { key: 'op2', value: ['multi', "'word'", 'value'], negated: false },
+      { key: 'op2', value: "multi, 'word', value", negated: false },
       { key: 'op3', value: 'value', negated: true }
     ]);
   });
@@ -114,6 +131,17 @@ describe('searchString', () => {
     expect(parsed.getNumUniqueConditionKeys()).toEqual(1);
     expect(conditionMap.op1).toEqual({
       value: 'value',
+      negated: false
+    });
+  });
+  test('comma in condition value', () => {
+    const str = 'from:spencer@mixmax.com template:"recruiting: reject email, inexperience"';
+    const parsed = SearchString.parse(str);
+    const conditionMap = parsed.getConditionMap();
+    expect(parsed.getText()).toEqual('');
+    expect(parsed.getNumUniqueConditionKeys()).toEqual(2);
+    expect(conditionMap.template).toEqual({
+      value: 'recruiting: reject email, inexperience',
       negated: false
     });
   });

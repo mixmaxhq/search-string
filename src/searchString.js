@@ -47,11 +47,13 @@ class SearchString {
         let value = term.slice(sepIndex + 1);
 
         // Strip surrounding quotes
+        const valueLengthWithQuotes = value.length;
         value = value.replace(/^\"|\"$|^\'|\'$/g, '');
-
-        // Make value array if applicable
-        if (value.indexOf(',') > 0) {
-          value = value.split(',').map((v) => v.trim());
+        if (value.length === valueLengthWithQuotes) {
+          // Make value array if applicable
+          if (value.indexOf(',') > 0) {
+            value = value.split(',').map((v) => v.trim());
+          }
         }
 
         if (rangeKeywords.includes(key)) {
@@ -68,7 +70,7 @@ class SearchString {
         }
       } else {
         const negated = term.indexOf('-') === 0;
-        let text= term;
+        let text = term;
         if (negated) {
           text = text.slice(1);
         }
@@ -103,8 +105,31 @@ class SearchString {
     return this.conditionArray;
   }
 
+  getParsedQuery() {
+    const parsedQuery = { exclude: {} };
+    this.conditionArray.forEach((condition) => {
+      if (condition.negated) {
+        if (parsedQuery.exclude[condition.key]) {
+          parsedQuery.exclude[condition.key].push(condition.value);
+        } else {
+          parsedQuery.exclude[condition.key] = [condition.value];
+        }
+      } else {
+        if (parsedQuery[condition.key]) {
+          parsedQuery[condition.key].push(condition.value);
+        } else {
+          parsedQuery[condition.key] = [condition.value];
+        }
+      }
+    });
+    return parsedQuery;
+  }
+
   getText() {
-    return this.textSegments.filter((textSegment) => !textSegment.negated).map((textSegment) => textSegment.text).join(' ');
+    return this.textSegments
+      .filter((textSegment) => !textSegment.negated)
+      .map((textSegment) => textSegment.text)
+      .join(' ');
   }
 
   getTextSegments() {
@@ -112,14 +137,9 @@ class SearchString {
   }
 
   getNegatedWords() {
-    return this.textSegments.filter((textSegment) => textSegment.negated).map((textSegment) => textSegment.text);
-  }
-
-  toString() {
-    return JSON.stringify({
-      conditions: this.conditions,
-      text: this.text
-    });
+    return this.textSegments
+      .filter((textSegment) => textSegment.negated)
+      .map((textSegment) => textSegment.text);
   }
 }
 
