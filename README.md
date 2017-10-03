@@ -8,15 +8,45 @@
 $ npm install search-string
 ```
 
-## Goals
+## Usage
 
-[Avoid workarounds like this](https://github.com/mixmaxhq/data/blob/060b44984ed4d45d817eb99840f4231805867c20/src/collections/outbox/utils/searchUtils.js#L26)
+```javascript
+const SearchString = require('search-string');
+
+// Perform parsing
+const str = 'to:me -from:joe@acme.com foobar1 -foobar2';
+const searchString = SearchString.parse(str);
+
+/* Get text */
+
+// [ { text: 'foorbar1', negated: false, { text: 'foobar2', negated: true } ]
+searchString.getTextSegments();
+
+
+/* Get conditions in different formats */
+
+// { to: { value: 'me', negated: false }, from: { joe@acme.com, negated: true } }
+searchString.getConditionMap(); 
+
+// { to: ['me'], excludes: { from: ['joe@acme.com'] }}
+searchString.getParsedQuery(); 
+
+// [ { key: 'to', value: 'me', negated: false }, { key: 'from', value: 'joe@acme.com', negated: true } ]
+searchString.getConditionArray(); 
+
+```
 
 ## Testing
 
 Run tests with `npm test`
 
 or run tests on any changes with `npm run testWatch`
+
+## Building
+
+Build ES5 compatible code with `npm run babel`
+
+or continually build and watch for changes with `npm run babelWatch`
 
 ## License
 

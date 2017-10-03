@@ -1,3 +1,4 @@
+
 class SearchString {
   constructor(conditionArray, conditionMap, textSegments) {
     this.conditionArray = conditionArray;

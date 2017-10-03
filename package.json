@@ -6,6 +6,7 @@
   "scripts": {
     "test": "jest",
     "testWatch": "jest --watch",
+    "babel": "babel src/ -d dist/node/ --copy-files",
     "babelWatch": "babel --watch src/ -d dist/node/ --copy-files"
   },
   "author": "Marcus Ericsson <marcus@mixmax.com> (https://mixmax.com)",

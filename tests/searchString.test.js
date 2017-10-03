@@ -5,6 +5,7 @@ describe('searchString', () => {
     expect(SearchString.parse().getConditionMap()).toEqual({});
     expect(SearchString.parse('').getConditionMap()).toEqual({});
   });
+
   test('bad input', () => {
     expect(SearchString.parse('to:').getConditionMap()).toEqual({
       to: { value: '', negated: false }
@@ -18,6 +19,7 @@ describe('searchString', () => {
       negated: false
     });
   });
+
   test('basic', () => {
     const str = 'to:me -from:joe@acme.com foobar';
     const parsed = SearchString.parse(str);
@@ -32,6 +34,7 @@ describe('searchString', () => {
       negated: true
     });
   });
+
   test('multiple getText() segments', () => {
     const str = 'to:me foobar zoobar';
     const parsed = SearchString.parse(str);
@@ -42,6 +45,7 @@ describe('searchString', () => {
       negated: false
     });
   });
+
   test('quoted value with space', () => {
     const str = 'to:"Marcus Ericsson" foobar';
     const parsed = SearchString.parse(str);
@@ -52,6 +56,7 @@ describe('searchString', () => {
       negated: false
     });
   });
+
   test('search-query-parser example', () => {
     const str =
       'from:hi@retrace.io,foo@gmail.com to:me subject:vacations date:1/10/2013-15/04/2014 photos';
@@ -70,6 +75,7 @@ describe('searchString', () => {
       negated: false
     });
   });
+
   test('negated getText()', () => {
     const str = 'hello -big -fat is:condition world';
     const parsed = SearchString.parse(str);
@@ -77,6 +83,7 @@ describe('searchString', () => {
     expect(parsed.getNegatedWords()).toEqual(['big', 'fat']);
     expect(parsed.getNumUniqueConditionKeys()).toEqual(1);
   });
+
   test('complex use case', () => {
     const str =
       'op1:value op1:value2 op2:"multi, \'word\', value" sometext -op3:value more naked text';
@@ -111,6 +118,7 @@ describe('searchString', () => {
       { key: 'op3', value: 'value', negated: true }
     ]);
   });
+
   test('several quoted strings', () => {
     const str = '"string one" "string two"';
     const parsed = SearchString.parse(str);
@@ -123,6 +131,7 @@ describe('searchString', () => {
     ]);
     expect(parsed.getNumUniqueConditionKeys()).toEqual(0);
   });
+
   test('quoted semicolon string', () => {
     const str = 'op1:value "semi:string"';
     const parsed = SearchString.parse(str);
@@ -134,6 +143,7 @@ describe('searchString', () => {
       negated: false
     });
   });
+
   test('comma in condition value', () => {
     const str = 'from:spencer@mixmax.com template:"recruiting: reject email, inexperience"';
     const parsed = SearchString.parse(str);
@@ -145,4 +155,17 @@ describe('searchString', () => {
       negated: false
     });
   });
+
+  test('quote in condition value', () => {
+    const str = 'foobar template:" hello "there": other"';
+    const parsed = SearchString.parse(str);
+    const conditionMap = parsed.getConditionMap();
+    expect(parsed.getText()).toEqual('foobar');
+    expect(conditionMap.getNumUniqueConditionKeys()).toEqual(1);
+    expect(conditionMap.template).toEqual({
+      value: 'hello "there": other',
+      negated: false
+    });
+  });
+
 });
