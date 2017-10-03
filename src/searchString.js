@@ -1,3 +1,9 @@
+// state tokens
+const RESET = 'RESET';
+const IN_OPERAND = 'IN_OPERAND';
+const IN_TEXT = 'IN_TEXT';
+const SINGLE_QUOTE = 'SINGLE_QUOTE';
+const DOUBLE_QUOTE = 'DOUBLE_QUOTE';
 
 class SearchString {
   constructor(conditionArray, conditionMap, textSegments) {
@@ -7,18 +13,14 @@ class SearchString {
   }
 
   /**
-   * 
    * @param {String} String to parse
-   * @param {Object} options
-   *    @param {Array} rangeKeywords - keywords should look out for to construct time ranges
    */
-  static parse(str, options = {}) {
-    const rangeKeywords = options.rangeKeywords || [];
+  static parse(str = '') {
     const conditionArray = [];
     const conditionMap = {};
     const textSegments = [];
 
-    const addEntry = (key, value, negated) => {
+    const addCondition = (key, value, negated) => {
       const mapValue = { value, negated };
       if (conditionMap[key]) {
         const mapValues = [conditionMap[key]];
@@ -31,59 +33,103 @@ class SearchString {
       conditionArray.push(arrayEntry);
     };
 
-    // get a list of search terms respecting single and double quotes
-    const regex = /(\S+:'(?:[^'\\]|\\.)*')|(\S+:"(?:[^"\\]|\\.)*")|'[^']+'|"[^"]+"|\S+|\S+:\S+/g;
-    let match;
+    const addTextSegment = (text, negated) => {
+      textSegments.push({ text, negated });
+    };
 
-    while ((match = regex.exec(str)) !== null) {
-      const term = match[0];
-      const sepIndex = term.indexOf(':');
-      if (sepIndex > 0 && term.indexOf('"') !== 0 && term.indexOf("'") !== 0) {
-        let key = term.slice(0, sepIndex);
-        let negated = false;
-        if (key[0] === '-') {
-          key = key.slice(1);
-          negated = true;
-        }
-        let value = term.slice(sepIndex + 1);
+    let state;
+    let currentOperand;
+    let isNegated;
+    let currentText;
+    let quoteState;
 
-        // Strip surrounding quotes
-        const valueLengthWithQuotes = value.length;
-        value = value.replace(/^\"|\"$|^\'|\'$/g, '');
-        if (value.length === valueLengthWithQuotes) {
-          // Make value array if applicable
-          if (value.indexOf(',') > 0) {
-            value = value.split(',').map((v) => v.trim());
+    const performReset = () => {
+      state = RESET;
+      quoteState = RESET;
+      currentOperand = '';
+      currentText = '';
+      isNegated = false;
+    };
+
+    // Terminology, in this example: 'to:joe@acme.com'
+    // 'to' is the operator
+    // 'joe@acme.com' is the operand
+    // 'to:joe@acme.com' is the condition
+
+    // Possible states:
+    // - IN_TEXT (could be raw text or an operator)
+    // - IN_OPERAND
+    // - RESET (in no other state)
+    const inText = () => state === IN_TEXT;
+    const inOperand = () => state === IN_OPERAND;
+    const inSingleQuote = () => quoteState === SINGLE_QUOTE;
+    const inDoubleQuote = () => quoteState === DOUBLE_QUOTE;
+    const inQuote = () => inSingleQuote() || inDoubleQuote();
+
+    performReset();
+
+    for (let i = 0; i < str.length; i++) {
+      const char = str[i];
+      if (char === ' ') {
+        if (inOperand()) {
+          if (inQuote()) {
+            currentOperand += char;
+          } else {
+            addCondition(currentText, currentOperand, isNegated);
+            performReset();
+          }
+        } else if (inText()) {
+          if (inQuote()) {
+            currentText += char;
+          } else {
+            addTextSegment(currentText, isNegated);
+            performReset();
           }
         }
-
-        if (rangeKeywords.includes(key)) {
-          // Only add condition if it is well-formed
-          const rangeSeperator = value.indexOf('-');
-          if (rangeSeperator > 0) {
-            const from = value.slice(0, rangeSeperator);
-            const to = value.slice(rangeSeperator + 1);
-            value = { from, to };
-            addEntry(key, value, negated);
-          }
+      } else if (char === ',' && inOperand() && !inQuote()) {
+        addCondition(currentText, currentOperand, isNegated);
+        // No reset here because we are still evaluating operands for the same operator
+        currentOperand = '';
+        isNegated = false;
+      } else if (char === '-' && !inOperand() && !inText()) {
+        isNegated = true;
+      } else if (char === ':' && !inQuote()) {
+        if (inOperand()) {
+          // If we're in an operand, just push the string on.
+          currentOperand += char;
+        } else if (inText()) {
+          // Skip this char, move states into IN_OPERAND,
+          state = IN_OPERAND;
+        }
+      } else if (char === '"' && !inSingleQuote()) {
+        if (inDoubleQuote()) {
+          quoteState = RESET;
         } else {
-          addEntry(key, value, negated);
+          quoteState = DOUBLE_QUOTE;
+        }
+      } else if (char === "'" && !inDoubleQuote()) {
+        if (inSingleQuote()) {
+          quoteState = RESET;
+        } else {
+          quoteState = SINGLE_QUOTE;
         }
       } else {
-        const negated = term.indexOf('-') === 0;
-        let text = term;
-        if (negated) {
-          text = text.slice(1);
+        // Regular character..
+        if (inOperand()) {
+          currentOperand += char;
+        } else {
+          currentText += char;
+          state = IN_TEXT;
         }
-        // Strip surrounding quotes
-        text = text.replace(/^\"|\"$|^\'|\'$/g, '');
-
-        textSegments.push({
-          text,
-          negated
-        });
       }
     }
+    // End of string, add any last entries
+    if (inText()) {
+      addTextSegment(currentText, isNegated);
+    } else if (inOperand()) {
+      addCondition(currentText, currentOperand, isNegated);
+    }
+
     return new SearchString(conditionArray, conditionMap, textSegments);
   }
 

@@ -59,19 +59,16 @@ describe('searchString', () => {
 
   test('search-query-parser example', () => {
     const str =
-      'from:hi@retrace.io,foo@gmail.com to:me subject:vacations date:1/10/2013-15/04/2014 photos';
+      'from:hi@mericsson.com,foo@gmail.com to:me subject:vacations date:1/10/2013-15/04/2014 photos';
     const parsed = SearchString.parse(str, { rangeKeywords: ['date'] });
     const conditionMap = parsed.getConditionMap();
     expect(parsed.getNumUniqueConditionKeys()).toEqual(4);
-    expect(conditionMap.from).toEqual({
-      value: ['hi@retrace.io', 'foo@gmail.com'],
-      negated: false
-    });
+    expect(conditionMap.from).toEqual([
+      { value: 'hi@mericsson.com', negated: false },
+      { value: 'foo@gmail.com', negated: false }
+    ]);
     expect(conditionMap.date).toEqual({
-      value: {
-        from: '1/10/2013',
-        to: '15/04/2014'
-      },
+      value: '1/10/2013-15/04/2014',
       negated: false
     });
   });
@@ -132,6 +129,20 @@ describe('searchString', () => {
     expect(parsed.getNumUniqueConditionKeys()).toEqual(0);
   });
 
+  test('dash in text', () => {
+    const str = 'my-string op1:val';
+    const parsed = SearchString.parse(str);
+    const conditionMap = parsed.getConditionMap();
+    expect(parsed.getTextSegments()[0]).toEqual({
+      text: 'my-string',
+      negated: false
+    });
+    expect(conditionMap.op1).toEqual({
+      value: 'val',
+      negated: false
+    });
+  });
+
   test('quoted semicolon string', () => {
     const str = 'op1:value "semi:string"';
     const parsed = SearchString.parse(str);
@@ -157,15 +168,14 @@ describe('searchString', () => {
   });
 
   test('quote in condition value', () => {
-    const str = 'foobar template:" hello "there": other"';
+    const str = 'foobar template:" hello \'there\': other"';
     const parsed = SearchString.parse(str);
     const conditionMap = parsed.getConditionMap();
     expect(parsed.getText()).toEqual('foobar');
-    expect(conditionMap.getNumUniqueConditionKeys()).toEqual(1);
+    expect(parsed.getNumUniqueConditionKeys()).toEqual(1);
     expect(conditionMap.template).toEqual({
-      value: 'hello "there": other',
+      value: " hello 'there': other",
       negated: false
     });
   });
-
 });
