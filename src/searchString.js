@@ -5,6 +5,10 @@ const IN_TEXT = 'IN_TEXT';
 const SINGLE_QUOTE = 'SINGLE_QUOTE';
 const DOUBLE_QUOTE = 'DOUBLE_QUOTE';
 
+/**
+ * SearchString is a parsed search string which allows you to fetch conditions
+ * and text being searched.
+ */
 class SearchString {
   constructor(conditionArray, conditionMap, textSegments) {
     this.conditionArray = conditionArray;
@@ -13,7 +17,8 @@ class SearchString {
   }
 
   /**
-   * @param {String} String to parse
+   * @param {String} str to parse e.g. 'to:me -from:joe@acme.com foobar'.
+   * @returns {SearchString} An instance of this class SearchString.
    */
   static parse(str = '') {
     const conditionArray = [];
@@ -59,10 +64,7 @@ class SearchString {
     // 'to:joe@acme.com' is the condition
 
     // Possible states:
-    // - IN_TEXT (could be raw text or an operator)
-    // - IN_OPERAND
-    // - RESET (in no other state)
-    const inText = () => state === IN_TEXT;
+    const inText = () => state === IN_TEXT; // could be inside raw text or operator
     const inOperand = () => state === IN_OPERAND;
     const inSingleQuote = () => quoteState === SINGLE_QUOTE;
     const inDoubleQuote = () => quoteState === DOUBLE_QUOTE;
@@ -136,25 +138,32 @@ class SearchString {
     return new SearchString(conditionArray, conditionMap, textSegments);
   }
 
+  /**
+   * @return {Number} Number of unique operators that have operands associated with them.
+   */
   getNumUniqueConditionKeys() {
     return Object.keys(this.conditionMap).length;
   }
 
   /**
    * @return {Object} map of conditions, if multiple conditions for a particular key exists,
-   *                  collapses them into one entry in the map
+   *                  collapses them into one entry in the map.
    */
   getConditionMap() {
     return this.conditionMap;
   }
 
   /**
-   * @return {Array} conditions, may contain multiple conditions for a particular key
+   * @return {Array} conditions, may contain multiple conditions for a particular key.
    */
   getConditionArray() {
     return this.conditionArray;
   }
 
+  /**
+   * @return {Object} map of conditions and includes a special key 'excludes'.
+   *                  Excludes itself is a map of conditions which were negated.
+   */
   getParsedQuery() {
     const parsedQuery = { exclude: {} };
     this.conditionArray.forEach((condition) => {
@@ -175,6 +184,9 @@ class SearchString {
     return parsedQuery;
   }
 
+  /**
+   * @return {String} space separated positive text segments
+   */
   getText() {
     return this.textSegments
       .filter((textSegment) => !textSegment.negated)
@@ -182,10 +194,17 @@ class SearchString {
       .join(' ');
   }
 
+  /**
+   * @return {Array} all text segment objects, negative or positive
+   *                 e.g. { text: 'foobar', negated: false }
+   */
   getTextSegments() {
     return this.textSegments;
   }
 
+  /**
+   * @return {Array} Array of string of negated words
+   */
   getNegatedWords() {
     return this.textSegments
       .filter((textSegment) => textSegment.negated)

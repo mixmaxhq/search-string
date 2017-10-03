@@ -4,17 +4,16 @@
   "description": "Another parser for advanced search query syntax.",
   "main": "index.js",
   "scripts": {
+    "babelBuild": "babel src/ -d dist/node/ --copy-files",
+    "babelWatch": "babel --watch src/ -d dist/node/ --copy-files",
+    "prepublish": "npm run babelBuild",
     "test": "jest",
-    "testWatch": "jest --watch",
-    "babel": "babel src/ -d dist/node/ --copy-files",
-    "babelWatch": "babel --watch src/ -d dist/node/ --copy-files"
+    "testWatch": "jest --watch"
   },
   "author": "Marcus Ericsson <marcus@mixmax.com> (https://mixmax.com)",
   "license": "MIT",
   "repository": "git@github.com:mixmaxhq/search-string.git",
-  "dependencies": {
-    "lodash": "^4.17.4"
-  },
+  "dependencies": {},
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.0",

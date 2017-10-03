@@ -57,7 +57,7 @@ describe('searchString', () => {
     });
   });
 
-  test('search-query-parser example', () => {
+  test('date example', () => {
     const str =
       'from:hi@mericsson.com,foo@gmail.com to:me subject:vacations date:1/10/2013-15/04/2014 photos';
     const parsed = SearchString.parse(str, { rangeKeywords: ['date'] });
@@ -156,7 +156,7 @@ describe('searchString', () => {
   });
 
   test('comma in condition value', () => {
-    const str = 'from:spencer@mixmax.com template:"recruiting: reject email, inexperience"';
+    const str = 'from:hello@mixmax.com template:"recruiting: reject email, inexperience"';
     const parsed = SearchString.parse(str);
     const conditionMap = parsed.getConditionMap();
     expect(parsed.getText()).toEqual('');
