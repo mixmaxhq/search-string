@@ -178,4 +178,16 @@ describe('searchString', () => {
       negated: false
     });
   });
+
+  test('double quote in double quote condition value', () => {
+    const str = 'foobar template:" hello \\"there\\": other"';
+    const parsed = SearchString.parse(str);
+    const conditionMap = parsed.getConditionMap();
+    expect(parsed.getText()).toEqual('foobar');
+    expect(parsed.getNumUniqueConditionKeys()).toEqual(1);
+    expect(conditionMap.template).toEqual({
+      value: ' hello \\"there\\": other',
+      negated: false
+    });
+  });
 });

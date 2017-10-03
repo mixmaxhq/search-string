@@ -42,6 +42,7 @@ class SearchString {
     let isNegated;
     let currentText;
     let quoteState;
+    let prevChar;
 
     const performReset = () => {
       state = RESET;
@@ -49,6 +50,7 @@ class SearchString {
       currentOperand = '';
       currentText = '';
       isNegated = false;
+      prevChar = '';
     };
 
     // Terminology, in this example: 'to:joe@acme.com'
@@ -101,13 +103,13 @@ class SearchString {
           // Skip this char, move states into IN_OPERAND,
           state = IN_OPERAND;
         }
-      } else if (char === '"' && !inSingleQuote()) {
+      } else if (char === '"' && prevChar !== '\\' && !inSingleQuote()) {
         if (inDoubleQuote()) {
           quoteState = RESET;
         } else {
           quoteState = DOUBLE_QUOTE;
         }
-      } else if (char === "'" && !inDoubleQuote()) {
+      } else if (char === "'" && prevChar !== '\\' && !inDoubleQuote()) {
         if (inSingleQuote()) {
           quoteState = RESET;
         } else {
@@ -122,6 +124,7 @@ class SearchString {
           state = IN_TEXT;
         }
       }
+      prevChar = char;
     }
     // End of string, add any last entries
     if (inText()) {
