@@ -1,5 +1,7 @@
 ## Release History
 
+* 1.2.0 Do not preserve \\
+
 * 1.1.1 package.json should list files
 
 * 1.1.0 Add functional `SearchString` class
