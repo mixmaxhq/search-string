@@ -65,7 +65,7 @@ describe('searchString', () => {
   test('date example', () => {
     const str =
       'from:hi@mericsson.com,foo@gmail.com to:me subject:vacations date:1/10/2013-15/04/2014 photos';
-    const parsed = SearchString.parse(str, { rangeKeywords: ['date'] });
+    const parsed = SearchString.parse(str);
     const conditionMap = parsed.getConditionMap();
     expect(parsed.getNumUniqueConditionKeys()).toEqual(4);
     expect(conditionMap.from).toEqual([
@@ -194,5 +194,14 @@ describe('searchString', () => {
       value: ' hello "there": other',
       negated: false
     });
+  });
+
+  test('transformTexttoCondition', () => {
+    const str = '<a@b.com> to:c@d.com';
+    const transform = (text) => (text === '<a@b.com>' ? { key: 'to', value: 'a@b.com' } : null);
+    const parsed = SearchString.parse(str, [transform]);
+    expect(parsed.getText()).toEqual('');
+    expect(parsed.getNumUniqueConditionKeys()).toEqual(1);
+    expect(parsed.getParsedQuery().to).toEqual(['a@b.com', 'c@d.com']);
   });
 });
