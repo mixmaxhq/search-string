@@ -2,7 +2,7 @@
 
 > Another simple parser for advanced search query syntax. Inspired by [search-query-parser](https://github.com/nepsilon/search-query-parser).
 
-[![Build Status](https://travis-ci.org/mixmaxhq/search-string.svg?branch=master)](https://travis-ci.org/mixmaxhq/search-string)
+nudge
 
 ## Installation
 
