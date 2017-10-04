@@ -4,6 +4,11 @@ describe('searchString', () => {
   test('empty', () => {
     expect(SearchString.parse().getConditionMap()).toEqual({});
     expect(SearchString.parse('').getConditionMap()).toEqual({});
+    expect(SearchString.parse('  ').getConditionMap()).toEqual({});
+    expect(SearchString.parse(null).getConditionMap()).toEqual({});
+    expect(SearchString.parse(null).getParsedQuery()).toEqual({
+      exclude: {}
+    });
   });
 
   test('bad input', () => {

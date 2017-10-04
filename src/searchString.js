@@ -20,7 +20,8 @@ class SearchString {
    * @param {String} str to parse e.g. 'to:me -from:joe@acme.com foobar'.
    * @returns {SearchString} An instance of this class SearchString.
    */
-  static parse(str = '') {
+  static parse(str) {
+    if (!str) str = '';
     const conditionArray = [];
     const conditionMap = {};
     const textSegments = [];
