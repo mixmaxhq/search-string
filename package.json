@@ -11,7 +11,9 @@
   "scripts": {
     "babelBuild": "babel src/ -d dist/node/ --copy-files",
     "babelWatch": "babel --watch src/ -d dist/node/ --copy-files",
-    "prepublish": "npm run babelBuild",
+    "ci": "npm run lint && npm run test && npm run babelBuild",
+    "lint": "eslint .",
+    "prepublish": "npm run ci",
     "test": "jest",
     "testWatch": "jest --watch"
   },
