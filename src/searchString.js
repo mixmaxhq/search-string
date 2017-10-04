@@ -117,7 +117,7 @@ class SearchString {
         } else {
           quoteState = SINGLE_QUOTE;
         }
-      } else {
+      } else if (char !== '\\') {
         // Regular character..
         if (inOperand()) {
           currentOperand += char;

@@ -186,7 +186,7 @@ describe('searchString', () => {
     expect(parsed.getText()).toEqual('foobar');
     expect(parsed.getNumUniqueConditionKeys()).toEqual(1);
     expect(conditionMap.template).toEqual({
-      value: ' hello \\"there\\": other',
+      value: ' hello "there": other',
       negated: false
     });
   });
