@@ -20,7 +20,7 @@ describe('searchString', () => {
       negated: false
     });
     expect(SearchString.parse('quoted text"').getTextSegments()[1]).toEqual({
-      text: 'text',
+      text: 'text"',
       negated: false
     });
   });
@@ -168,6 +168,30 @@ describe('searchString', () => {
     expect(parsed.getNumUniqueConditionKeys()).toEqual(2);
     expect(conditionMap.template).toEqual({
       value: 'recruiting: reject email, inexperience',
+      negated: false
+    });
+  });
+
+  test('intentional quote in text', () => {
+    const str = "foo'bar from:aes";
+    const parsed = SearchString.parse(str);
+    const conditionMap = parsed.getConditionMap();
+    expect(parsed.getText()).toEqual("foo'bar");
+    expect(parsed.getNumUniqueConditionKeys()).toEqual(1);
+    expect(conditionMap.from).toEqual({
+      value: 'aes',
+      negated: false
+    });
+  });
+
+  test('intentional quote in operand', () => {
+    const str = "foobar from:ae's";
+    const parsed = SearchString.parse(str);
+    const conditionMap = parsed.getConditionMap();
+    expect(parsed.getText()).toEqual('foobar');
+    expect(parsed.getNumUniqueConditionKeys()).toEqual(1);
+    expect(conditionMap.from).toEqual({
+      value: "ae's",
       negated: false
     });
   });

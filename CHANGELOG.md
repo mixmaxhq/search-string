@@ -1,5 +1,7 @@
 ## Release History
 
+* 1.2.2 Persist unpaired quotes e.g. `her's` should be persisted as `'her\'s`
+
 * 1.2.1 Handle `null` argument for `SearchString.parse`
 
 * 1.2.0 Do not preserve \\
