@@ -1,3 +1,5 @@
+const { getQuotePairMap } = require('./utils');
+
 // state tokens
 const RESET = 'RESET';
 const IN_OPERAND = 'IN_OPERAND';
@@ -73,6 +75,8 @@ class SearchString {
 
     performReset();
 
+    const quotePairMap = getQuotePairMap(str);
+
     for (let i = 0; i < str.length; i++) {
       const char = str[i];
       if (char === ' ') {
@@ -109,14 +113,22 @@ class SearchString {
       } else if (char === '"' && prevChar !== '\\' && !inSingleQuote()) {
         if (inDoubleQuote()) {
           quoteState = RESET;
-        } else {
+        } else if (quotePairMap.double[i]) {
           quoteState = DOUBLE_QUOTE;
+        } else if (inOperand()) {
+          currentOperand += char;
+        } else {
+          currentText += char;
         }
       } else if (char === "'" && prevChar !== '\\' && !inDoubleQuote()) {
         if (inSingleQuote()) {
           quoteState = RESET;
-        } else {
+        } else if (quotePairMap.single[i]) {
           quoteState = SINGLE_QUOTE;
+        } else if (inOperand()) {
+          currentOperand += char;
+        } else {
+          currentText += char;
         }
       } else if (char !== '\\') {
         // Regular character..
