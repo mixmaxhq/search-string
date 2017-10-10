@@ -20,9 +20,10 @@ class SearchString {
 
   /**
    * @param {String} str to parse e.g. 'to:me -from:joe@acme.com foobar'.
+   * @param {Array} transformTextToConditions Array of functions to transform text into conditions
    * @returns {SearchString} An instance of this class SearchString.
    */
-  static parse(str) {
+  static parse(str, transformTextToConditions = []) {
     if (!str) str = '';
     const conditionArray = [];
     const conditionMap = {};
@@ -42,7 +43,17 @@ class SearchString {
     };
 
     const addTextSegment = (text, negated) => {
-      textSegments.push({ text, negated });
+      let hasTransform = false;
+      transformTextToConditions.forEach((transform) => {
+        const { key, value } = transform(text);
+        if (key && value) {
+          addCondition(key, value, negated);
+          hasTransform = true;
+        }
+      });
+      if (!hasTransform) {
+        textSegments.push({ text, negated });
+      }
     };
 
     let state;
