@@ -207,6 +207,7 @@ describe('searchString', () => {
       value: "ae's",
       negated: false
     });
+    expect(parsed.toString()).toEqual("from:ae's foobar");
   });
 
   test('quote in condition value', () => {
@@ -219,6 +220,7 @@ describe('searchString', () => {
       value: " hello 'there': other",
       negated: false
     });
+    expect(parsed.toString()).toEqual('template:" hello \'there\': other" foobar');
   });
 
   test('double quote in double quote condition value', () => {
@@ -231,6 +233,7 @@ describe('searchString', () => {
       value: ' hello "there": other',
       negated: false
     });
+    expect(parsed.toString()).toEqual('template:" hello \\"there\\": other" foobar');
   });
 
   test('transformTexttoCondition', () => {
