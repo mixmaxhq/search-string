@@ -1,5 +1,7 @@
 ## Release History
 
+* 2.0.0 Deprecate `SearchString.getConditionMap`, add `toString`, `clone`, `addEntry`, `removeKeyword` to `SearchString`. Enable transforms to be passed in to `SearchString`.
+
 * 1.2.2 Persist unpaired quotes e.g. `her's` should be persisted as `her\'s`
 
 * 1.2.1 Handle `null` argument for `SearchString.parse`
