@@ -291,9 +291,22 @@ class SearchString {
     let conditionStr = '';
     Object.keys(conditionGroups).forEach((conditionGroupKey) => {
       const values = conditionGroups[conditionGroupKey];
-      const safeValues = values
-        .filter((v) => v)
-        .map((v) => (v.indexOf(' ') > 0 || v.indexOf(',') > 0 ? `"${v}"` : v));
+      const safeValues = values.filter((v) => v).map((v) => {
+        let newV = '';
+        let shouldQuote = false;
+        for (let i = 0; i < v.length; i++) {
+          const char = v[i];
+          if (char === '"') {
+            newV += '\\"';
+          } else {
+            if (char === ' ' || char === ',') {
+              shouldQuote = true;
+            }
+            newV += char;
+          }
+        }
+        return shouldQuote ? `"${newV}"` : newV;
+      });
       if (safeValues.length > 0) {
         conditionStr += ` ${conditionGroupKey}:${safeValues.join(',')}`;
       }
