@@ -2,17 +2,17 @@ const SearchString = require('../src/searchString');
 
 describe('searchString', () => {
   test('empty', () => {
-    expect(SearchString.parse().getConditionMap()).toEqual({});
-    expect(SearchString.parse('').getConditionMap()).toEqual({});
-    expect(SearchString.parse('  ').getConditionMap()).toEqual({});
-    expect(SearchString.parse(null).getConditionMap()).toEqual({});
+    expect(SearchString.parse()._getConditionMap()).toEqual({});
+    expect(SearchString.parse('')._getConditionMap()).toEqual({});
+    expect(SearchString.parse('  ')._getConditionMap()).toEqual({});
+    expect(SearchString.parse(null)._getConditionMap()).toEqual({});
     expect(SearchString.parse(null).getParsedQuery()).toEqual({
       exclude: {}
     });
   });
 
   test('bad input', () => {
-    expect(SearchString.parse('to:').getConditionMap()).toEqual({
+    expect(SearchString.parse('to:')._getConditionMap()).toEqual({
       to: { value: '', negated: false }
     });
     expect(SearchString.parse('quoted text"').getTextSegments()[0]).toEqual({
@@ -30,11 +30,11 @@ describe('searchString', () => {
     const parsed = SearchString.parse(str);
     expect(parsed.getText()).toEqual('foobar');
     expect(parsed.getNumUniqueConditionKeys()).toEqual(2);
-    expect(parsed.getConditionMap().to).toEqual({
+    expect(parsed._getConditionMap().to).toEqual({
       value: 'me',
       negated: false
     });
-    expect(parsed.getConditionMap().from).toEqual({
+    expect(parsed._getConditionMap().from).toEqual({
       value: 'joe@acme.com',
       negated: true
     });
@@ -45,7 +45,7 @@ describe('searchString', () => {
     const parsed = SearchString.parse(str);
     expect(parsed.getText()).toEqual('foobar zoobar');
     expect(parsed.getNumUniqueConditionKeys()).toEqual(1);
-    expect(parsed.getConditionMap().to).toEqual({
+    expect(parsed._getConditionMap().to).toEqual({
       value: 'me',
       negated: false
     });
@@ -56,7 +56,7 @@ describe('searchString', () => {
     const parsed = SearchString.parse(str);
     expect(parsed.getText()).toEqual('foobar');
     expect(parsed.getNumUniqueConditionKeys()).toEqual(1);
-    expect(parsed.getConditionMap().to).toEqual({
+    expect(parsed._getConditionMap().to).toEqual({
       value: 'Marcus Ericsson',
       negated: false
     });
@@ -66,7 +66,7 @@ describe('searchString', () => {
     const str =
       'from:hi@mericsson.com,foo@gmail.com to:me subject:vacations date:1/10/2013-15/04/2014 photos';
     const parsed = SearchString.parse(str);
-    const conditionMap = parsed.getConditionMap();
+    const conditionMap = parsed._getConditionMap();
     expect(parsed.getNumUniqueConditionKeys()).toEqual(4);
     expect(conditionMap.from).toEqual([
       { value: 'hi@mericsson.com', negated: false },
@@ -90,7 +90,7 @@ describe('searchString', () => {
     const str =
       'op1:value op1:value2 op2:"multi, \'word\', value" sometext -op3:value more naked text';
     const parsed = SearchString.parse(str);
-    const conditionMap = parsed.getConditionMap();
+    const conditionMap = parsed._getConditionMap();
     const conditionArray = parsed.getConditionArray();
     expect(parsed.getText()).toEqual('sometext more naked text');
     expect(parsed.getNumUniqueConditionKeys()).toEqual(3);
@@ -114,11 +114,24 @@ describe('searchString', () => {
     });
     expect(conditionArray.length).toEqual(4);
     expect(conditionArray).toEqual([
-      { key: 'op1', value: 'value', negated: false },
-      { key: 'op1', value: 'value2', negated: false },
-      { key: 'op2', value: "multi, 'word', value", negated: false },
-      { key: 'op3', value: 'value', negated: true }
+      { keyword: 'op1', value: 'value', negated: false },
+      { keyword: 'op1', value: 'value2', negated: false },
+      { keyword: 'op2', value: "multi, 'word', value", negated: false },
+      { keyword: 'op3', value: 'value', negated: true }
     ]);
+    expect(parsed.toString()).toEqual(
+      'op1:value,value2 op2:"multi, \'word\', value" -op3:value sometext more naked text'
+    );
+    parsed.removeKeyword('op1', false);
+    expect(parsed.toString()).toEqual(
+      'op2:"multi, \'word\', value" -op3:value sometext more naked text'
+    );
+    parsed.removeKeyword('op3', false);
+    expect(parsed.toString()).toEqual(
+      'op2:"multi, \'word\', value" -op3:value sometext more naked text'
+    );
+    parsed.removeKeyword('op3', true);
+    expect(parsed.toString()).toEqual('op2:"multi, \'word\', value" sometext more naked text');
   });
 
   test('several quoted strings', () => {
@@ -137,7 +150,7 @@ describe('searchString', () => {
   test('dash in text', () => {
     const str = 'my-string op1:val';
     const parsed = SearchString.parse(str);
-    const conditionMap = parsed.getConditionMap();
+    const conditionMap = parsed._getConditionMap();
     expect(parsed.getTextSegments()[0]).toEqual({
       text: 'my-string',
       negated: false
@@ -151,7 +164,7 @@ describe('searchString', () => {
   test('quoted semicolon string', () => {
     const str = 'op1:value "semi:string"';
     const parsed = SearchString.parse(str);
-    const conditionMap = parsed.getConditionMap();
+    const conditionMap = parsed._getConditionMap();
     expect(parsed.getText()).toEqual('semi:string');
     expect(parsed.getNumUniqueConditionKeys()).toEqual(1);
     expect(conditionMap.op1).toEqual({
@@ -163,7 +176,7 @@ describe('searchString', () => {
   test('comma in condition value', () => {
     const str = 'from:hello@mixmax.com template:"recruiting: reject email, inexperience"';
     const parsed = SearchString.parse(str);
-    const conditionMap = parsed.getConditionMap();
+    const conditionMap = parsed._getConditionMap();
     expect(parsed.getText()).toEqual('');
     expect(parsed.getNumUniqueConditionKeys()).toEqual(2);
     expect(conditionMap.template).toEqual({
@@ -175,7 +188,7 @@ describe('searchString', () => {
   test('intentional quote in text', () => {
     const str = "foo'bar from:aes";
     const parsed = SearchString.parse(str);
-    const conditionMap = parsed.getConditionMap();
+    const conditionMap = parsed._getConditionMap();
     expect(parsed.getText()).toEqual("foo'bar");
     expect(parsed.getNumUniqueConditionKeys()).toEqual(1);
     expect(conditionMap.from).toEqual({
@@ -187,7 +200,7 @@ describe('searchString', () => {
   test('intentional quote in operand', () => {
     const str = "foobar from:ae's";
     const parsed = SearchString.parse(str);
-    const conditionMap = parsed.getConditionMap();
+    const conditionMap = parsed._getConditionMap();
     expect(parsed.getText()).toEqual('foobar');
     expect(parsed.getNumUniqueConditionKeys()).toEqual(1);
     expect(conditionMap.from).toEqual({
@@ -199,7 +212,7 @@ describe('searchString', () => {
   test('quote in condition value', () => {
     const str = 'foobar template:" hello \'there\': other"';
     const parsed = SearchString.parse(str);
-    const conditionMap = parsed.getConditionMap();
+    const conditionMap = parsed._getConditionMap();
     expect(parsed.getText()).toEqual('foobar');
     expect(parsed.getNumUniqueConditionKeys()).toEqual(1);
     expect(conditionMap.template).toEqual({
@@ -211,7 +224,7 @@ describe('searchString', () => {
   test('double quote in double quote condition value', () => {
     const str = 'foobar template:" hello \\"there\\": other"';
     const parsed = SearchString.parse(str);
-    const conditionMap = parsed.getConditionMap();
+    const conditionMap = parsed._getConditionMap();
     expect(parsed.getText()).toEqual('foobar');
     expect(parsed.getNumUniqueConditionKeys()).toEqual(1);
     expect(conditionMap.template).toEqual({
