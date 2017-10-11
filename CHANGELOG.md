@@ -1,6 +1,8 @@
 ## Release History
 
-* 2.0.0 Deprecate `SearchString.getConditionMap`, add `toString`, `clone`, `addEntry`, `removeKeyword` to `SearchString`. Enable transforms to be passed in to `SearchString`.
+* 2.0.1 Babel es2015 preset for client side use.
+
+* 2.0.0 Deprecate `SearchString.getConditionMap`, add `toString`, `clone`, `addEntry`, `removeKeyword` to `SearchString`.
 
 * 1.2.2 Persist unpaired quotes e.g. `her's` should be persisted as `her\'s`
 
