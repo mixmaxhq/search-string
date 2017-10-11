@@ -27,9 +27,6 @@ searchString.getTextSegments();
 
 /* Get conditions in different formats */
 
-// { to: { value: 'me', negated: false }, from: { joe@acme.com, negated: true } }
-searchString.getConditionMap(); 
-
 // { to: ['me'], excludes: { from: ['joe@acme.com'] }}
 searchString.getParsedQuery(); 
 
