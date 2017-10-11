@@ -38,7 +38,7 @@ class SearchString {
       } else {
         conditionMap[key] = mapValue;
       }
-      const arrayEntry = { key, value, negated };
+      const arrayEntry = { keyword: key, value, negated };
       conditionArray.push(arrayEntry);
     };
 
@@ -170,10 +170,11 @@ class SearchString {
   }
 
   /**
+   * DEPRECATED - Haven't found a use for it.
    * @return {Object} map of conditions, if multiple conditions for a particular key exists,
    *                  collapses them into one entry in the map.
    */
-  getConditionMap() {
+  _getConditionMap() {
     return this.conditionMap;
   }
 
@@ -192,20 +193,26 @@ class SearchString {
     const parsedQuery = { exclude: {} };
     this.conditionArray.forEach((condition) => {
       if (condition.negated) {
-        if (parsedQuery.exclude[condition.key]) {
-          parsedQuery.exclude[condition.key].push(condition.value);
+        if (parsedQuery.exclude[condition.keyword]) {
+          parsedQuery.exclude[condition.keyword].push(condition.value);
         } else {
-          parsedQuery.exclude[condition.key] = [condition.value];
+          parsedQuery.exclude[condition.keyword] = [condition.value];
         }
       } else {
-        if (parsedQuery[condition.key]) {
-          parsedQuery[condition.key].push(condition.value);
+        if (parsedQuery[condition.keyword]) {
+          parsedQuery[condition.keyword].push(condition.value);
         } else {
-          parsedQuery[condition.key] = [condition.value];
+          parsedQuery[condition.keyword] = [condition.value];
         }
       }
     });
     return parsedQuery;
+  }
+
+  getAllText() {
+    return this.textSegments
+      ? this.textSegments.map(({ text, negated }) => (negated ? `-${text}` : text)).join(' ')
+      : '';
   }
 
   /**
@@ -233,6 +240,65 @@ class SearchString {
     return this.textSegments
       .filter((textSegment) => textSegment.negated)
       .map((textSegment) => textSegment.text);
+  }
+
+  /**
+   * Removes keyword-negated pair that matches inputted.
+   * @param {String} keywordToRemove 
+   * @param {String} negatedToRemove 
+   */
+  removeKeyword(keywordToRemove, negatedToRemove) {
+    this.conditionArray = this.conditionArray.filter(
+      ({ keyword, negated }) => keywordToRemove !== keyword || negatedToRemove !== negated
+    );
+  }
+
+  /**
+   * 
+   * @param {String} keyword 
+   * @param {String} value 
+   * @param {Boolean} negated 
+   */
+  addEntry(keyword, value, negated) {
+    this.conditionArray.push({
+      keyword,
+      value,
+      negated
+    });
+  }
+
+  clone() {
+    return new SearchString(
+      this.conditionArray.slice(0),
+      Object.assign({}, this.conditionMap),
+      this.textSegments.slice(0)
+    );
+  }
+
+  toString() {
+    // Group keyword, negated pairs as keys
+    const conditionGroups = {};
+    this.conditionArray.forEach(({ keyword, value, negated }) => {
+      const negatedStr = negated ? '-' : '';
+      const conditionGroupKey = `${negatedStr}${keyword}`;
+      if (conditionGroups[conditionGroupKey]) {
+        conditionGroups[conditionGroupKey].push(value);
+      } else {
+        conditionGroups[conditionGroupKey] = [value];
+      }
+    });
+    // Build conditionStr
+    let conditionStr = '';
+    Object.keys(conditionGroups).forEach((conditionGroupKey) => {
+      const values = conditionGroups[conditionGroupKey];
+      const safeValues = values
+        .filter((v) => v)
+        .map((v) => (v.indexOf(' ') > 0 || v.indexOf(',') > 0 ? `"${v}"` : v));
+      if (safeValues.length > 0) {
+        conditionStr += ` ${conditionGroupKey}:${safeValues.join(',')}`;
+      }
+    });
+    return `${conditionStr} ${this.getAllText()}`.trim();
   }
 }
 
