@@ -1,5 +1,7 @@
 ## Release History
 
+* 2.0.3 Fix input string concat negative conditions
+
 * 2.0.2 `toString` should handle `"` by converting to `\"`
 
 * 2.0.1 Babel es2015 preset for client side use.
