@@ -236,6 +236,20 @@ describe('searchString', () => {
     expect(parsed.toString()).toEqual('template:" hello \\"there\\": other" foobar');
   });
 
+  test('two negative conditions concat toString', () => {
+    const str = '-to:foo@foo.com,foo2@foo.com text';
+    const parsed = SearchString.parse(str);
+    expect(parsed.getParsedQuery().exclude.to).toEqual(['foo@foo.com', 'foo2@foo.com']);
+    expect(parsed.toString()).toEqual('-to:foo@foo.com,foo2@foo.com text');
+  });
+
+  test('two negative conditions separate toString', () => {
+    const str = '-to:foo@foo.com -to:foo2@foo.com text';
+    const parsed = SearchString.parse(str);
+    expect(parsed.getParsedQuery().exclude.to).toEqual(['foo@foo.com', 'foo2@foo.com']);
+    expect(parsed.toString()).toEqual('-to:foo@foo.com,foo2@foo.com text');
+  });
+
   test('transformTexttoCondition', () => {
     const str = '<a@b.com> to:c@d.com';
     const transform = (text) => (text === '<a@b.com>' ? { key: 'to', value: 'a@b.com' } : null);

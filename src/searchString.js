@@ -110,7 +110,6 @@ class SearchString {
         addCondition(currentText, currentOperand, isNegated);
         // No reset here because we are still evaluating operands for the same operator
         currentOperand = '';
-        isNegated = false;
       } else if (char === '-' && !inOperand() && !inText()) {
         isNegated = true;
       } else if (char === ':' && !inQuote()) {
