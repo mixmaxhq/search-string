@@ -12,9 +12,8 @@ const DOUBLE_QUOTE = 'DOUBLE_QUOTE';
  * and text being searched.
  */
 class SearchString {
-  constructor(conditionArray, conditionMap, textSegments) {
+  constructor(conditionArray, textSegments) {
     this.conditionArray = conditionArray;
-    this.conditionMap = conditionMap;
     this.textSegments = textSegments;
   }
 
@@ -26,18 +25,9 @@ class SearchString {
   static parse(str, transformTextToConditions = []) {
     if (!str) str = '';
     const conditionArray = [];
-    const conditionMap = {};
     const textSegments = [];
 
     const addCondition = (key, value, negated) => {
-      const mapValue = { value, negated };
-      if (conditionMap[key]) {
-        const mapValues = [conditionMap[key]];
-        mapValues.push(mapValue);
-        conditionMap[key] = mapValues;
-      } else {
-        conditionMap[key] = mapValue;
-      }
       const arrayEntry = { keyword: key, value, negated };
       conditionArray.push(arrayEntry);
     };
@@ -158,23 +148,7 @@ class SearchString {
       addCondition(currentText, currentOperand, isNegated);
     }
 
-    return new SearchString(conditionArray, conditionMap, textSegments);
-  }
-
-  /**
-   * @return {Number} Number of unique operators that have operands associated with them.
-   */
-  getNumUniqueConditionKeys() {
-    return Object.keys(this.conditionMap).length;
-  }
-
-  /**
-   * DEPRECATED - Haven't found a use for it.
-   * @return {Object} map of conditions, if multiple conditions for a particular key exists,
-   *                  collapses them into one entry in the map.
-   */
-  _getConditionMap() {
-    return this.conditionMap;
+    return new SearchString(conditionArray, textSegments);
   }
 
   /**
@@ -215,30 +189,11 @@ class SearchString {
   }
 
   /**
-   * @return {String} space separated positive text segments
-   */
-  getText() {
-    return this.textSegments
-      .filter((textSegment) => !textSegment.negated)
-      .map((textSegment) => textSegment.text)
-      .join(' ');
-  }
-
-  /**
    * @return {Array} all text segment objects, negative or positive
    *                 e.g. { text: 'foobar', negated: false }
    */
   getTextSegments() {
     return this.textSegments;
-  }
-
-  /**
-   * @return {Array} Array of string of negated words
-   */
-  getNegatedWords() {
-    return this.textSegments
-      .filter((textSegment) => textSegment.negated)
-      .map((textSegment) => textSegment.text);
   }
 
   /**
@@ -267,11 +222,7 @@ class SearchString {
   }
 
   clone() {
-    return new SearchString(
-      this.conditionArray.slice(0),
-      Object.assign({}, this.conditionMap),
-      this.textSegments.slice(0)
-    );
+    return new SearchString(this.conditionArray.slice(0), this.textSegments.slice(0));
   }
 
   toString() {

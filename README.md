@@ -10,6 +10,29 @@
 $ npm install search-string
 ```
 
+## Current Uses
+
+### data
+
+```
+SearchString.parse
+searchString.getParsedQuery
+searchString.getTextSegments
+```
+
+### app
+
+```
+SearchString.parse
+searchString.getConditionArray
+searchString.getAllText
+searchString.clone
+searchString.removeKeyword
+searchString.addEntry
+searchString.toString
+searchString.getParsedQuery
+```
+
 ## Usage
 
 ```javascript
