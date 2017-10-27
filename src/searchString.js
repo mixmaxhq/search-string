@@ -15,6 +15,8 @@ class SearchString {
   constructor(conditionArray, textSegments) {
     this.conditionArray = conditionArray;
     this.textSegments = textSegments;
+    this.string = '';
+    this.stringDirty = true;
   }
 
   /**
@@ -205,6 +207,7 @@ class SearchString {
     this.conditionArray = this.conditionArray.filter(
       ({ keyword, negated }) => keywordToRemove !== keyword || negatedToRemove !== negated
     );
+    this.stringDirty = true;
   }
 
   /**
@@ -219,6 +222,7 @@ class SearchString {
       value,
       negated
     });
+    this.stringDirty = true;
   }
 
   clone() {
@@ -226,42 +230,46 @@ class SearchString {
   }
 
   toString() {
-    // Group keyword, negated pairs as keys
-    const conditionGroups = {};
-    this.conditionArray.forEach(({ keyword, value, negated }) => {
-      const negatedStr = negated ? '-' : '';
-      const conditionGroupKey = `${negatedStr}${keyword}`;
-      if (conditionGroups[conditionGroupKey]) {
-        conditionGroups[conditionGroupKey].push(value);
-      } else {
-        conditionGroups[conditionGroupKey] = [value];
-      }
-    });
-    // Build conditionStr
-    let conditionStr = '';
-    Object.keys(conditionGroups).forEach((conditionGroupKey) => {
-      const values = conditionGroups[conditionGroupKey];
-      const safeValues = values.filter((v) => v).map((v) => {
-        let newV = '';
-        let shouldQuote = false;
-        for (let i = 0; i < v.length; i++) {
-          const char = v[i];
-          if (char === '"') {
-            newV += '\\"';
-          } else {
-            if (char === ' ' || char === ',') {
-              shouldQuote = true;
-            }
-            newV += char;
-          }
+    if (this.stringDirty) {
+      // Group keyword, negated pairs as keys
+      const conditionGroups = {};
+      this.conditionArray.forEach(({ keyword, value, negated }) => {
+        const negatedStr = negated ? '-' : '';
+        const conditionGroupKey = `${negatedStr}${keyword}`;
+        if (conditionGroups[conditionGroupKey]) {
+          conditionGroups[conditionGroupKey].push(value);
+        } else {
+          conditionGroups[conditionGroupKey] = [value];
         }
-        return shouldQuote ? `"${newV}"` : newV;
       });
-      if (safeValues.length > 0) {
-        conditionStr += ` ${conditionGroupKey}:${safeValues.join(',')}`;
-      }
-    });
-    return `${conditionStr} ${this.getAllText()}`.trim();
+      // Build conditionStr
+      let conditionStr = '';
+      Object.keys(conditionGroups).forEach((conditionGroupKey) => {
+        const values = conditionGroups[conditionGroupKey];
+        const safeValues = values.filter((v) => v).map((v) => {
+          let newV = '';
+          let shouldQuote = false;
+          for (let i = 0; i < v.length; i++) {
+            const char = v[i];
+            if (char === '"') {
+              newV += '\\"';
+            } else {
+              if (char === ' ' || char === ',') {
+                shouldQuote = true;
+              }
+              newV += char;
+            }
+          }
+          return shouldQuote ? `"${newV}"` : newV;
+        });
+        if (safeValues.length > 0) {
+          conditionStr += ` ${conditionGroupKey}:${safeValues.join(',')}`;
+        }
+      });
+      this.string = `${conditionStr} ${this.getAllText()}`.trim();
+      this.stringDirty = false;
+    }
+    return this.string;
   }
 }
 
