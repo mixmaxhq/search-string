@@ -168,6 +168,8 @@ describe('searchString', () => {
     );
     parsed.removeKeyword('op1', false);
     expect(parsed.toString()).toEqual('op2:"multi, \'word\', value" -op3:value sometext more text');
+    // Check once more to see if cached copy returns correctly.
+    expect(parsed.toString()).toEqual('op2:"multi, \'word\', value" -op3:value sometext more text');
     parsed.removeKeyword('op3', false);
     expect(parsed.toString()).toEqual('op2:"multi, \'word\', value" -op3:value sometext more text');
     parsed.removeKeyword('op3', true);
@@ -298,7 +300,7 @@ describe('searchString', () => {
     expect(parsed.toString()).toEqual('-to:foo@foo.com,foo2@foo.com text');
   });
 
-  test('transformTexttoCondition', () => {
+  test('transformTextToCondition', () => {
     const str = '<a@b.com> to:c@d.com';
     const transform = (text) => (text === '<a@b.com>' ? { key: 'to', value: 'a@b.com' } : null);
     const parsed = SearchString.parse(str, [transform]);

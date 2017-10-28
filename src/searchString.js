@@ -12,6 +12,9 @@ const DOUBLE_QUOTE = 'DOUBLE_QUOTE';
  * and text being searched.
  */
 class SearchString {
+  /**
+   * Not intended for public use. API could change.
+   */
   constructor(conditionArray, textSegments) {
     this.conditionArray = conditionArray;
     this.textSegments = textSegments;
@@ -184,6 +187,10 @@ class SearchString {
     return parsedQuery;
   }
 
+  /**
+   * @return {String} All text segments concateted together joined by a space.
+   *                  If a text segment is negated, it is preceded by a `-`.
+   */
   getAllText() {
     return this.textSegments
       ? this.textSegments.map(({ text, negated }) => (negated ? `-${text}` : text)).join(' ')
@@ -200,8 +207,9 @@ class SearchString {
 
   /**
    * Removes keyword-negated pair that matches inputted.
-   * @param {String} keywordToRemove 
-   * @param {String} negatedToRemove 
+   * Only removes if entry has same keyword/negated combo.
+   * @param {String} keywordToRemove Keyword to remove.
+   * @param {Boolean} negatedToRemove Whether or not the keyword removed is negated.
    */
   removeKeyword(keywordToRemove, negatedToRemove) {
     this.conditionArray = this.conditionArray.filter(
@@ -211,10 +219,10 @@ class SearchString {
   }
 
   /**
-   * 
-   * @param {String} keyword 
-   * @param {String} value 
-   * @param {Boolean} negated 
+   * Adds a new entry to search string. Does not dedupe against existing entries.
+   * @param {String} keyword  Keyword to add.
+   * @param {String} value    Value for respecitve keyword.
+   * @param {Boolean} negated Whether or not keyword/value pair should be negated.
    */
   addEntry(keyword, value, negated) {
     this.conditionArray.push({
@@ -225,10 +233,17 @@ class SearchString {
     this.stringDirty = true;
   }
 
+  /**
+   * @return {SearchString} A new instance of this class based on current data. 
+   */
   clone() {
     return new SearchString(this.conditionArray.slice(0), this.textSegments.slice(0));
   }
 
+  /**
+   * @return {String} Returns this instance synthesized to a string format.
+   *                  Example string: `to:me -from:joe@acme.com foobar`
+   */
   toString() {
     if (this.stringDirty) {
       // Group keyword, negated pairs as keys
