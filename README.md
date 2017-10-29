@@ -10,29 +10,6 @@
 $ npm install search-string
 ```
 
-## Current Uses
-
-### data
-
-```
-SearchString.parse
-searchString.getParsedQuery
-searchString.getTextSegments
-```
-
-### app
-
-```
-SearchString.parse
-searchString.getConditionArray
-searchString.getAllText
-searchString.clone
-searchString.removeKeyword
-searchString.addEntry
-searchString.toString
-searchString.getParsedQuery
-```
-
 ## Usage
 
 ```javascript
@@ -42,19 +19,45 @@ const SearchString = require('search-string');
 const str = 'to:me -from:joe@acme.com foobar1 -foobar2';
 const searchString = SearchString.parse(str);
 
-/* Get text */
+/* Get text in different formats. */
 
 // [ { text: 'foorbar1', negated: false }, { text: 'foobar2', negated: true } ]
 searchString.getTextSegments();
 
+// `foobar1 -foobar2`
+searchString.getAllText();
 
-/* Get conditions in different formats */
 
+/* Get conditions in different formats. */
+
+// Standard format: Condition Array
+// [ { key: 'to', value: 'me', negated: false }, { key: 'from', value: 'joe@acme.com', negated: true } ]
+searchString.getConditionArray(); 
+
+// Alternate format: Parsed Query
 // { to: ['me'], excludes: { from: ['joe@acme.com'] }}
 searchString.getParsedQuery(); 
 
-// [ { key: 'to', value: 'me', negated: false }, { key: 'from', value: 'joe@acme.com', negated: true } ]
-searchString.getConditionArray(); 
+/* Or get text and conditions back in string format. */
+
+// `to:me -from:joe@acme.com foobar1 -foobar2`
+searchString.toString();
+
+
+/* Mutations exist as well for modifying an existing SearchString structure. */
+
+// `to:me foobar -foobar2`
+searchString.removeKeyword('from', true).toString()
+
+// `to:me from:jane@mixmax.com foobar1 -foobar2`
+searchString.addEntry('from', 'jane@mixmax.com', false).toString();
+
+
+/* clone operation instantiates a new version by copying over data. */
+
+// `to:me from:jane@mixmax.com foobar1 -foobar2`
+searchString.clone().toString();
+
 
 ```
 
