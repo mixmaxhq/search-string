@@ -19,7 +19,7 @@ class SearchString {
     this.conditionArray = conditionArray;
     this.textSegments = textSegments;
     this.string = '';
-    this.stringDirty = true;
+    this.isStringDirty = true;
   }
 
   /**
@@ -215,7 +215,7 @@ class SearchString {
     this.conditionArray = this.conditionArray.filter(
       ({ keyword, negated }) => keywordToRemove !== keyword || negatedToRemove !== negated
     );
-    this.stringDirty = true;
+    this.isStringDirty = true;
   }
 
   /**
@@ -230,7 +230,7 @@ class SearchString {
       value,
       negated
     });
-    this.stringDirty = true;
+    this.isStringDirty = true;
   }
 
   /**
@@ -245,7 +245,7 @@ class SearchString {
    *                  Example string: `to:me -from:joe@acme.com foobar`
    */
   toString() {
-    if (this.stringDirty) {
+    if (this.isStringDirty) {
       // Group keyword, negated pairs as keys
       const conditionGroups = {};
       this.conditionArray.forEach(({ keyword, value, negated }) => {
@@ -282,7 +282,7 @@ class SearchString {
         }
       });
       this.string = `${conditionStr} ${this.getAllText()}`.trim();
-      this.stringDirty = false;
+      this.isStringDirty = false;
     }
     return this.string;
   }
