@@ -4,6 +4,15 @@
 
 [![Build Status](https://travis-ci.org/mixmaxhq/search-string.svg?branch=master)](https://travis-ci.org/mixmaxhq/search-string)
 
+It parses typical Gmail-style search strings like:
+
+```
+to:me -from@joe@mixmax.com foobar1 -foobar2
+```
+
+And returns an instance of `SearchString` which can be mutated, return different data structures, or the gmail-style search string again.
+
+
 ## Installation
 
 ```shell
@@ -16,7 +25,7 @@ $ npm install search-string
 const SearchString = require('search-string');
 
 // Perform parsing
-const str = 'to:me -from:joe@acme.com foobar1 -foobar2';
+const str = 'to:me -from:joe@mixmax.com foobar1 -foobar2';
 const searchString = SearchString.parse(str);
 
 /* Get text in different formats. */
@@ -31,16 +40,16 @@ searchString.getAllText();
 /* Get conditions in different formats. */
 
 // Standard format: Condition Array
-// [ { key: 'to', value: 'me', negated: false }, { key: 'from', value: 'joe@acme.com', negated: true } ]
+// [ { key: 'to', value: 'me', negated: false }, { key: 'from', value: 'joe@mixmax.com', negated: true } ]
 searchString.getConditionArray(); 
 
 // Alternate format: Parsed Query
-// { to: ['me'], excludes: { from: ['joe@acme.com'] }}
+// { to: ['me'], excludes: { from: ['joe@mixmax.com'] }}
 searchString.getParsedQuery(); 
 
 /* Or get text and conditions back in string format. */
 
-// `to:me -from:joe@acme.com foobar1 -foobar2`
+// `to:me -from:joe@mixmax.com foobar1 -foobar2`
 searchString.toString();
 
 
