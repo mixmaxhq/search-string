@@ -20,6 +20,7 @@
   },
   "author": "Marcus Ericsson <marcus@mixmax.com> (https://mixmax.com)",
   "license": "MIT",
+  "keywords": ["query parser", "querystrings", "search", "search syntax parser", "search query"],
   "repository": "git@github.com:mixmaxhq/search-string.git",
   "dependencies": {},
   "devDependencies": {
