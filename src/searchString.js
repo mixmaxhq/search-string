@@ -12,10 +12,14 @@ const DOUBLE_QUOTE = 'DOUBLE_QUOTE';
  * and text being searched.
  */
 class SearchString {
-  constructor(conditionArray, conditionMap, textSegments) {
+  /**
+   * Not intended for public use. API could change.
+   */
+  constructor(conditionArray, textSegments) {
     this.conditionArray = conditionArray;
-    this.conditionMap = conditionMap;
     this.textSegments = textSegments;
+    this.string = '';
+    this.isStringDirty = true;
   }
 
   /**
@@ -26,18 +30,9 @@ class SearchString {
   static parse(str, transformTextToConditions = []) {
     if (!str) str = '';
     const conditionArray = [];
-    const conditionMap = {};
     const textSegments = [];
 
     const addCondition = (key, value, negated) => {
-      const mapValue = { value, negated };
-      if (conditionMap[key]) {
-        const mapValues = [conditionMap[key]];
-        mapValues.push(mapValue);
-        conditionMap[key] = mapValues;
-      } else {
-        conditionMap[key] = mapValue;
-      }
       const arrayEntry = { keyword: key, value, negated };
       conditionArray.push(arrayEntry);
     };
@@ -158,23 +153,7 @@ class SearchString {
       addCondition(currentText, currentOperand, isNegated);
     }
 
-    return new SearchString(conditionArray, conditionMap, textSegments);
-  }
-
-  /**
-   * @return {Number} Number of unique operators that have operands associated with them.
-   */
-  getNumUniqueConditionKeys() {
-    return Object.keys(this.conditionMap).length;
-  }
-
-  /**
-   * DEPRECATED - Haven't found a use for it.
-   * @return {Object} map of conditions, if multiple conditions for a particular key exists,
-   *                  collapses them into one entry in the map.
-   */
-  _getConditionMap() {
-    return this.conditionMap;
+    return new SearchString(conditionArray, textSegments);
   }
 
   /**
@@ -208,20 +187,14 @@ class SearchString {
     return parsedQuery;
   }
 
+  /**
+   * @return {String} All text segments concateted together joined by a space.
+   *                  If a text segment is negated, it is preceded by a `-`.
+   */
   getAllText() {
     return this.textSegments
       ? this.textSegments.map(({ text, negated }) => (negated ? `-${text}` : text)).join(' ')
       : '';
-  }
-
-  /**
-   * @return {String} space separated positive text segments
-   */
-  getText() {
-    return this.textSegments
-      .filter((textSegment) => !textSegment.negated)
-      .map((textSegment) => textSegment.text)
-      .join(' ');
   }
 
   /**
@@ -233,30 +206,23 @@ class SearchString {
   }
 
   /**
-   * @return {Array} Array of string of negated words
-   */
-  getNegatedWords() {
-    return this.textSegments
-      .filter((textSegment) => textSegment.negated)
-      .map((textSegment) => textSegment.text);
-  }
-
-  /**
    * Removes keyword-negated pair that matches inputted.
-   * @param {String} keywordToRemove 
-   * @param {String} negatedToRemove 
+   * Only removes if entry has same keyword/negated combo.
+   * @param {String} keywordToRemove Keyword to remove.
+   * @param {Boolean} negatedToRemove Whether or not the keyword removed is negated.
    */
   removeKeyword(keywordToRemove, negatedToRemove) {
     this.conditionArray = this.conditionArray.filter(
       ({ keyword, negated }) => keywordToRemove !== keyword || negatedToRemove !== negated
     );
+    this.isStringDirty = true;
   }
 
   /**
-   * 
-   * @param {String} keyword 
-   * @param {String} value 
-   * @param {Boolean} negated 
+   * Adds a new entry to search string. Does not dedupe against existing entries.
+   * @param {String} keyword  Keyword to add.
+   * @param {String} value    Value for respecitve keyword.
+   * @param {Boolean} negated Whether or not keyword/value pair should be negated.
    */
   addEntry(keyword, value, negated) {
     this.conditionArray.push({
@@ -264,53 +230,61 @@ class SearchString {
       value,
       negated
     });
+    this.isStringDirty = true;
   }
 
+  /**
+   * @return {SearchString} A new instance of this class based on current data. 
+   */
   clone() {
-    return new SearchString(
-      this.conditionArray.slice(0),
-      Object.assign({}, this.conditionMap),
-      this.textSegments.slice(0)
-    );
+    return new SearchString(this.conditionArray.slice(0), this.textSegments.slice(0));
   }
 
+  /**
+   * @return {String} Returns this instance synthesized to a string format.
+   *                  Example string: `to:me -from:joe@acme.com foobar`
+   */
   toString() {
-    // Group keyword, negated pairs as keys
-    const conditionGroups = {};
-    this.conditionArray.forEach(({ keyword, value, negated }) => {
-      const negatedStr = negated ? '-' : '';
-      const conditionGroupKey = `${negatedStr}${keyword}`;
-      if (conditionGroups[conditionGroupKey]) {
-        conditionGroups[conditionGroupKey].push(value);
-      } else {
-        conditionGroups[conditionGroupKey] = [value];
-      }
-    });
-    // Build conditionStr
-    let conditionStr = '';
-    Object.keys(conditionGroups).forEach((conditionGroupKey) => {
-      const values = conditionGroups[conditionGroupKey];
-      const safeValues = values.filter((v) => v).map((v) => {
-        let newV = '';
-        let shouldQuote = false;
-        for (let i = 0; i < v.length; i++) {
-          const char = v[i];
-          if (char === '"') {
-            newV += '\\"';
-          } else {
-            if (char === ' ' || char === ',') {
-              shouldQuote = true;
-            }
-            newV += char;
-          }
+    if (this.isStringDirty) {
+      // Group keyword, negated pairs as keys
+      const conditionGroups = {};
+      this.conditionArray.forEach(({ keyword, value, negated }) => {
+        const negatedStr = negated ? '-' : '';
+        const conditionGroupKey = `${negatedStr}${keyword}`;
+        if (conditionGroups[conditionGroupKey]) {
+          conditionGroups[conditionGroupKey].push(value);
+        } else {
+          conditionGroups[conditionGroupKey] = [value];
         }
-        return shouldQuote ? `"${newV}"` : newV;
       });
-      if (safeValues.length > 0) {
-        conditionStr += ` ${conditionGroupKey}:${safeValues.join(',')}`;
-      }
-    });
-    return `${conditionStr} ${this.getAllText()}`.trim();
+      // Build conditionStr
+      let conditionStr = '';
+      Object.keys(conditionGroups).forEach((conditionGroupKey) => {
+        const values = conditionGroups[conditionGroupKey];
+        const safeValues = values.filter((v) => v).map((v) => {
+          let newV = '';
+          let shouldQuote = false;
+          for (let i = 0; i < v.length; i++) {
+            const char = v[i];
+            if (char === '"') {
+              newV += '\\"';
+            } else {
+              if (char === ' ' || char === ',') {
+                shouldQuote = true;
+              }
+              newV += char;
+            }
+          }
+          return shouldQuote ? `"${newV}"` : newV;
+        });
+        if (safeValues.length > 0) {
+          conditionStr += ` ${conditionGroupKey}:${safeValues.join(',')}`;
+        }
+      });
+      this.string = `${conditionStr} ${this.getAllText()}`.trim();
+      this.isStringDirty = false;
+    }
+    return this.string;
   }
 }
 

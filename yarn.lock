@@ -1073,9 +1073,9 @@ escodegen@^1.6.1:
   optionalDependencies:
     source-map "~0.5.6"
 
-eslint-config-mixmax@^0.7.0:
-  version "0.7.0"
-  resolved "https://registry.yarnpkg.com/eslint-config-mixmax/-/eslint-config-mixmax-0.7.0.tgz#dd0d6215845730b07da0102beda3707a1283e3e8"
+eslint-config-mixmax@^0.9.0:
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/eslint-config-mixmax/-/eslint-config-mixmax-0.9.0.tgz#09fbffcb146e0445fc0bd55e779e1046c7103cc0"
   optionalDependencies:
     babel-eslint "^7.2.3"
     eslint-plugin-react "^7.1.0"
