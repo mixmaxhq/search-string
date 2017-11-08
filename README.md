@@ -41,11 +41,11 @@ searchString.getAllText();
 
 // Standard format: Condition Array
 // [ { key: 'to', value: 'me', negated: false }, { key: 'from', value: 'joe@mixmax.com', negated: true } ]
-searchString.getConditionArray(); 
+searchString.getConditionArray();
 
 // Alternate format: Parsed Query
 // { to: ['me'], excludes: { from: ['joe@mixmax.com'] }}
-searchString.getParsedQuery(); 
+searchString.getParsedQuery();
 
 /* Or get text and conditions back in string format. */
 
@@ -105,3 +105,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+## Release history
+
+* 3.1.0 Add `Transforms`

@@ -1,4 +1,5 @@
 const { getQuotePairMap } = require('./utils');
+const transforms = require('./transforms');
 
 // state tokens
 const RESET = 'RESET';
@@ -234,7 +235,7 @@ class SearchString {
   }
 
   /**
-   * @return {SearchString} A new instance of this class based on current data. 
+   * @return {SearchString} A new instance of this class based on current data.
    */
   clone() {
     return new SearchString(this.conditionArray.slice(0), this.textSegments.slice(0));
@@ -287,5 +288,7 @@ class SearchString {
     return this.string;
   }
 }
+
+SearchString.Transforms = transforms;
 
 module.exports = SearchString;
