@@ -12,6 +12,8 @@ to:me -from:joe@mixmax.com foobar1 -foobar2
 
 And returns an instance of `SearchString` which can be mutated, return different data structures, or return the gmail-style search string again.
 
+See this [blog post](https://mixmax.com/blog/search-string-advanced-search-parser) introducing this library.
+
 
 ## Installation
 
