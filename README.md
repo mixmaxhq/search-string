@@ -1,6 +1,6 @@
 # Search String
 
-> Another simple parser for advanced search query syntax. Inspired by [search-query-parser](https://github.com/nepsilon/search-query-parser).
+> Another simple parser for advanced search query syntax.
 
 [![Build Status](https://travis-ci.org/mixmaxhq/search-string.svg?branch=master)](https://travis-ci.org/mixmaxhq/search-string)
 
@@ -81,6 +81,12 @@ or run tests on any changes with `npm run testWatch`
 Build ES5 compatible code with `npm run babel`
 
 or continually build and watch for changes with `npm run babelWatch`
+
+## Background
+
+See [this blogpost](https://mixmax.com/blog/search-string-advanced-search-parser) for why this library was built and continues to be supported.
+
+Thanks to [search-query-parser](https://github.com/nepsilon/search-query-parser) for inspiration.
 
 ## License
 
