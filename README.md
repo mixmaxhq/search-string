@@ -2,7 +2,7 @@
 
 > Another simple parser for advanced search query syntax.
 
-[![Build Status](https://travis-ci.org/mixmaxhq/search-string.svg?branch=master)](https://travis-ci.org/mixmaxhq/search-string)
+[![Build Status](https://travis-ci.org/mixmaxhq/search-string.svg?branch=master)](https://travis-ci.org/mixmaxhq/search-string) [![npm version](https://badge.fury.io/js/search-string.svg)](https://badge.fury.io/js/search-string)
 
 It parses typical Gmail-style search strings like:
 
