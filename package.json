@@ -1,6 +1,6 @@
 {
   "name": "search-string",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "Another parser for advanced search query syntax.",
   "main": "index.js",
   "files": [
