@@ -308,4 +308,37 @@ describe('searchString', () => {
     expect(getNumKeywords(parsed)).toEqual(1);
     expect(parsed.getParsedQuery().to).toEqual(['a@b.com', 'c@d.com']);
   });
+
+  test('removeEntry simple case', () => {
+    const str = 'foo:bar,baz';
+    const parsed = SearchString.parse(str);
+    expect(parsed.getParsedQuery().foo).toEqual(['bar', 'baz']);
+
+    parsed.removeEntry('foo', 'baz', false);
+
+    expect(parsed.getParsedQuery().foo).toEqual(['bar']);
+  });
+
+  test('removeEntry should remove only one case', () => {
+    const str = '-foo:bar,baz,bar,bar,bar';
+    const parsed = SearchString.parse(str);
+    expect(parsed.getParsedQuery().exclude.foo).toEqual(['bar', 'baz', 'bar', 'bar', 'bar']);
+
+    parsed.removeEntry('foo', 'bar', true);
+
+    expect(parsed.getParsedQuery().exclude.foo).toEqual(['baz', 'bar', 'bar', 'bar']);
+  });
+
+  test('removeEntry should be noop if entry is not found', () => {
+    const str = 'foo:bar';
+    const parsed = SearchString.parse(str);
+    expect(parsed.getParsedQuery().foo).toEqual(['bar']);
+    expect(parsed.toString()).toEqual('foo:bar');
+    expect(parsed.isStringDirty).toEqual(false);
+
+    parsed.removeEntry('foo', 'qux', false);
+
+    expect(parsed.getParsedQuery().foo).toEqual(['bar']);
+    expect(parsed.isStringDirty).toEqual(false);
+  });
 });
