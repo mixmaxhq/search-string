@@ -234,6 +234,25 @@ class SearchString {
   }
 
   /**
+   * Removes an entry from the search string. If more than one entry with the same settings is found,
+   * it removes the first entry matched.
+   *
+   * @param {String} keyword  Keyword to remove.
+   * @param {String} value    Value for respecitve keyword.
+   * @param {Boolean} negated Whether or not keyword/value pair is be negated.
+   */
+  removeEntry(keyword, value, negated) {
+    const index = this.conditionArray.findIndex((entry) => {
+      return entry.keyword === keyword && entry.value === value && entry.negated === negated;
+    });
+
+    if (index === -1) return;
+
+    this.conditionArray.splice(index, 1);
+    this.isStringDirty = true;
+  }
+
+  /**
    * @return {SearchString} A new instance of this class based on current data. 
    */
   clone() {
