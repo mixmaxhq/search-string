@@ -1,9 +1,11 @@
 ## Release History
 
+* 3.1.0 Added `removeEntry` method.
+	
 * 3.0.0 API tidying
   * Removal of `conditionMap` data structure which was already deprecated.
   * Removal of helper `getNumUniqueConditionKeys` which hasn't been needed.
-  * Caching `toStringw result for quick follow-up retrieval.
+  * Caching `toString` result for quick follow-up retrieval.
 
 * 2.0.4 `npm version` mixup
 

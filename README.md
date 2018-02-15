@@ -63,10 +63,12 @@ searchString.removeKeyword('from', true).toString()
 // `to:me from:jane@mixmax.com foobar1 -foobar2`
 searchString.addEntry('from', 'jane@mixmax.com', false).toString();
 
+// `from:jane@mixmax.com foobar1 -foobar2`
+searchString.removeEntry('to', 'me', false).toString();
 
 /* clone operation instantiates a new version by copying over data. */
 
-// `to:me from:jane@mixmax.com foobar1 -foobar2`
+// `from:jane@mixmax.com foobar1 -foobar2`
 searchString.clone().toString();
 
 
