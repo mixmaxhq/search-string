@@ -221,7 +221,7 @@ class SearchString {
   /**
    * Adds a new entry to search string. Does not dedupe against existing entries.
    * @param {String} keyword  Keyword to add.
-   * @param {String} value    Value for respctitve keyword.
+   * @param {String} value    Value for respective keyword.
    * @param {Boolean} negated Whether or not keyword/value pair should be negated.
    */
   addEntry(keyword, value, negated) {
@@ -238,7 +238,7 @@ class SearchString {
    * it removes the first entry matched.
    *
    * @param {String} keyword  Keyword to remove.
-   * @param {String} value    Value for respectitve keyword.
+   * @param {String} value    Value for respective keyword.
    * @param {Boolean} negated Whether or not keyword/value pair is be negated.
    */
   removeEntry(keyword, value, negated) {
