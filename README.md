@@ -42,7 +42,7 @@ searchString.getAllText();
 /* Get conditions in different formats. */
 
 // Standard format: Condition Array
-// [ { key: 'to', value: 'me', negated: false }, { key: 'from', value: 'joe@mixmax.com', negated: true } ]
+// [ { keyword: 'to', value: 'me', negated: false }, { keyword: 'from', value: 'joe@mixmax.com', negated: true } ]
 searchString.getConditionArray(); 
 
 // Alternate format: Parsed Query
