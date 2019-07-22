@@ -1,4 +1,16 @@
-const { getQuotePairMap } = require('./utils');
+import { getQuotePairMap } from './utils';
+
+// types
+type State = typeof RESET | typeof IN_OPERAND | typeof IN_TEXT
+type QuoteState = typeof RESET | typeof SINGLE_QUOTE | typeof DOUBLE_QUOTE
+type Keyword = Exclude<string, 'exclude'>
+type Value = string
+type Condition = { keyword: Keyword, value: string, negated: boolean }
+type TextSegment = { text: string, negated: boolean }
+type Transformer = (text:string) => {key:Keyword, value: string} | null
+type ParsedQuery = Record<string, any> & {
+  exclude: Record<string, Value[]>;
+}
 
 // state tokens
 const RESET = 'RESET';
@@ -11,11 +23,16 @@ const DOUBLE_QUOTE = 'DOUBLE_QUOTE';
  * SearchString is a parsed search string which allows you to fetch conditions
  * and text being searched.
  */
-class SearchString {
+export default class SearchString {
+  conditionArray:Condition[]
+  textSegments:TextSegment[]
+  string:string
+  isStringDirty:boolean
+
   /**
    * Not intended for public use. API could change.
    */
-  constructor(conditionArray, textSegments) {
+  constructor(conditionArray:Condition[], textSegments:TextSegment[]) {
     this.conditionArray = conditionArray;
     this.textSegments = textSegments;
     this.string = '';
@@ -27,23 +44,26 @@ class SearchString {
    * @param {Array} transformTextToConditions Array of functions to transform text into conditions
    * @returns {SearchString} An instance of this class SearchString.
    */
-  static parse(str, transformTextToConditions = []) {
+  static parse(str?:string|null, transformTextToConditions:Transformer[] = []) {
     if (!str) str = '';
-    const conditionArray = [];
-    const textSegments = [];
+    const conditionArray:Condition[] = [];
+    const textSegments:TextSegment[] = [];
 
-    const addCondition = (key, value, negated) => {
+    const addCondition = (key:Keyword, value:Value, negated:boolean) => {
       const arrayEntry = { keyword: key, value, negated };
       conditionArray.push(arrayEntry);
     };
 
-    const addTextSegment = (text, negated) => {
+    const addTextSegment = (text:string, negated:boolean) => {
       let hasTransform = false;
       transformTextToConditions.forEach((transform) => {
-        const { key, value } = transform(text);
-        if (key && value) {
-          addCondition(key, value, negated);
-          hasTransform = true;
+        const transformed = transform(text);
+        if (transformed) {
+          const { key, value } = transformed
+          if (key && value) {
+            addCondition(key, value, negated);
+            hasTransform = true;
+          }
         }
       });
       if (!hasTransform) {
@@ -51,12 +71,12 @@ class SearchString {
       }
     };
 
-    let state;
-    let currentOperand;
-    let isNegated;
-    let currentText;
-    let quoteState;
-    let prevChar;
+    let state:State = RESET;
+    let currentOperand = '';
+    let isNegated = false;
+    let currentText = '';
+    let quoteState:QuoteState;
+    let prevChar = '';
 
     const performReset = () => {
       state = RESET;
@@ -168,7 +188,8 @@ class SearchString {
    *                  Excludes itself is a map of conditions which were negated.
    */
   getParsedQuery() {
-    const parsedQuery = { exclude: {} };
+    const parsedQuery:ParsedQuery = { exclude: { }}
+
     this.conditionArray.forEach((condition) => {
       if (condition.negated) {
         if (parsedQuery.exclude[condition.keyword]) {
@@ -184,6 +205,7 @@ class SearchString {
         }
       }
     });
+
     return parsedQuery;
   }
 
@@ -211,7 +233,7 @@ class SearchString {
    * @param {String} keywordToRemove Keyword to remove.
    * @param {Boolean} negatedToRemove Whether or not the keyword removed is negated.
    */
-  removeKeyword(keywordToRemove, negatedToRemove) {
+  removeKeyword(keywordToRemove:Keyword, negatedToRemove:boolean) {
     this.conditionArray = this.conditionArray.filter(
       ({ keyword, negated }) => keywordToRemove !== keyword || negatedToRemove !== negated
     );
@@ -224,7 +246,7 @@ class SearchString {
    * @param {String} value    Value for respective keyword.
    * @param {Boolean} negated Whether or not keyword/value pair should be negated.
    */
-  addEntry(keyword, value, negated) {
+  addEntry(keyword:Keyword, value:Value, negated:boolean) {
     this.conditionArray.push({
       keyword,
       value,
@@ -241,7 +263,7 @@ class SearchString {
    * @param {String} value    Value for respective keyword.
    * @param {Boolean} negated Whether or not keyword/value pair is be negated.
    */
-  removeEntry(keyword, value, negated) {
+  removeEntry(keyword:Keyword, value:Value, negated:boolean) {
     const index = this.conditionArray.findIndex((entry) => {
       return entry.keyword === keyword && entry.value === value && entry.negated === negated;
     });
@@ -266,7 +288,7 @@ class SearchString {
   toString() {
     if (this.isStringDirty) {
       // Group keyword, negated pairs as keys
-      const conditionGroups = {};
+      const conditionGroups:Record<string, string[]> = {};
       this.conditionArray.forEach(({ keyword, value, negated }) => {
         const negatedStr = negated ? '-' : '';
         const conditionGroupKey = `${negatedStr}${keyword}`;
@@ -306,5 +328,3 @@ class SearchString {
     return this.string;
   }
 }
-
-module.exports = SearchString;

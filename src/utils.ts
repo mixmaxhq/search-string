@@ -1,6 +1,6 @@
-function getQuotePairMap(str) {
+export function getQuotePairMap(str?:string|null) {
   if (!str) str = '';
-  const quotePairMap = { single: {}, double: {} };
+  const quotePairMap:{single: Record<number, boolean>, double: Record<number, boolean>} = { single: {}, double: {} };
 
   const prevQuote = { single: -1, double: -1 };
   let prevChar = '';
@@ -31,6 +31,4 @@ function getQuotePairMap(str) {
   return quotePairMap;
 }
 
-module.exports = {
-  getQuotePairMap
-};
+

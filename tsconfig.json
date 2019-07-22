@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "strict": true,
+    "outDir": "dist/node/",
+    "sourceMap": true,
+    "declaration": true,
+    "types" : ["jest"],
+    "skipLibCheck": true
+  },
+  "include": ["*.ts", "./src/**/*", "./tests/**/*", "./node_modules/@types/**/*"]
+}

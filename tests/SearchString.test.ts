@@ -1,7 +1,9 @@
-const SearchString = require('../src/searchString');
+import SearchString from './../src/SearchString'
 
-function getConditionMap(searchString) {
-  const map = {};
+function getConditionMap(searchString:SearchString) {
+  const map:Record<string, {
+    value: string,
+    negated: boolean}[]> = {};
   searchString.getConditionArray().forEach(({ keyword, value, negated }) => {
     const mapValue = { value, negated };
     if (map[keyword]) {
@@ -13,7 +15,7 @@ function getConditionMap(searchString) {
   return map;
 }
 
-function getNumKeywords(searchString) {
+function getNumKeywords(searchString:SearchString) {
   return Object.keys(getConditionMap(searchString)).length;
 }
 
@@ -302,7 +304,7 @@ describe('searchString', () => {
 
   test('transformTextToCondition', () => {
     const str = '<a@b.com> to:c@d.com';
-    const transform = (text) => (text === '<a@b.com>' ? { key: 'to', value: 'a@b.com' } : null);
+    const transform = (text:string) => (text === '<a@b.com>' ? { key: 'to', value: 'a@b.com' } : null);
     const parsed = SearchString.parse(str, [transform]);
     expect(parsed.getTextSegments()).toEqual([]);
     expect(getNumKeywords(parsed)).toEqual(1);
