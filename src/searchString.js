@@ -228,7 +228,7 @@ class SearchString {
     this.conditionArray.push({
       keyword,
       value,
-      negated
+      negated,
     });
     this.isStringDirty = true;
   }
@@ -253,7 +253,7 @@ class SearchString {
   }
 
   /**
-   * @return {SearchString} A new instance of this class based on current data. 
+   * @return {SearchString} A new instance of this class based on current data.
    */
   clone() {
     return new SearchString(this.conditionArray.slice(0), this.textSegments.slice(0));
@@ -280,22 +280,24 @@ class SearchString {
       let conditionStr = '';
       Object.keys(conditionGroups).forEach((conditionGroupKey) => {
         const values = conditionGroups[conditionGroupKey];
-        const safeValues = values.filter((v) => v).map((v) => {
-          let newV = '';
-          let shouldQuote = false;
-          for (let i = 0; i < v.length; i++) {
-            const char = v[i];
-            if (char === '"') {
-              newV += '\\"';
-            } else {
-              if (char === ' ' || char === ',') {
-                shouldQuote = true;
+        const safeValues = values
+          .filter((v) => v)
+          .map((v) => {
+            let newV = '';
+            let shouldQuote = false;
+            for (let i = 0; i < v.length; i++) {
+              const char = v[i];
+              if (char === '"') {
+                newV += '\\"';
+              } else {
+                if (char === ' ' || char === ',') {
+                  shouldQuote = true;
+                }
+                newV += char;
               }
-              newV += char;
             }
-          }
-          return shouldQuote ? `"${newV}"` : newV;
-        });
+            return shouldQuote ? `"${newV}"` : newV;
+          });
         if (safeValues.length > 0) {
           conditionStr += ` ${conditionGroupKey}:${safeValues.join(',')}`;
         }

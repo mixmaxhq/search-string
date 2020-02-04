@@ -24,21 +24,21 @@ describe('searchString', () => {
     expect(SearchString.parse('   ').getConditionArray()).toEqual([]);
     expect(SearchString.parse(null).getConditionArray()).toEqual([]);
     expect(SearchString.parse(null).getParsedQuery()).toEqual({
-      exclude: {}
+      exclude: {},
     });
   });
 
   test('bad input', () => {
     expect(SearchString.parse('to:').getConditionArray()).toEqual([
-      { keyword: 'to', value: '', negated: false }
+      { keyword: 'to', value: '', negated: false },
     ]);
     expect(SearchString.parse('quoted text"').getTextSegments()[0]).toEqual({
       text: 'quoted',
-      negated: false
+      negated: false,
     });
     expect(SearchString.parse('quoted text"').getTextSegments()[1]).toEqual({
       text: 'text"',
-      negated: false
+      negated: false,
     });
   });
 
@@ -50,14 +50,14 @@ describe('searchString', () => {
     expect(getConditionMap(parsed).to).toEqual([
       {
         value: 'me',
-        negated: false
-      }
+        negated: false,
+      },
     ]);
     expect(getConditionMap(parsed).from).toEqual([
       {
         value: 'joe@acme.com',
-        negated: true
-      }
+        negated: true,
+      },
     ]);
   });
 
@@ -66,14 +66,14 @@ describe('searchString', () => {
     const parsed = SearchString.parse(str);
     expect(parsed.getTextSegments()).toEqual([
       { text: 'foobar', negated: false },
-      { text: 'zoobar', negated: false }
+      { text: 'zoobar', negated: false },
     ]);
     expect(getNumKeywords(parsed)).toEqual(1);
     expect(getConditionMap(parsed).to).toEqual([
       {
         value: 'me',
-        negated: false
-      }
+        negated: false,
+      },
     ]);
   });
 
@@ -85,8 +85,8 @@ describe('searchString', () => {
     expect(getConditionMap(parsed).to).toEqual([
       {
         value: 'Marcus Ericsson',
-        negated: false
-      }
+        negated: false,
+      },
     ]);
   });
 
@@ -98,13 +98,13 @@ describe('searchString', () => {
     expect(getNumKeywords(parsed)).toEqual(4);
     expect(conditionMap.from).toEqual([
       { value: 'hi@mericsson.com', negated: false },
-      { value: 'foo@gmail.com', negated: false }
+      { value: 'foo@gmail.com', negated: false },
     ]);
     expect(conditionMap.date).toEqual([
       {
         value: '1/10/2013-15/04/2014',
-        negated: false
-      }
+        negated: false,
+      },
     ]);
   });
 
@@ -114,11 +114,11 @@ describe('searchString', () => {
     expect(parsed.getTextSegments()).toEqual([
       {
         text: 'hello',
-        negated: false
+        negated: false,
       },
       { text: 'big', negated: true },
       { text: 'fat', negated: true },
-      { text: 'world', negated: false }
+      { text: 'world', negated: false },
     ]);
     expect(getNumKeywords(parsed)).toEqual(1);
   });
@@ -131,37 +131,37 @@ describe('searchString', () => {
     expect(parsed.getTextSegments()).toEqual([
       { text: 'sometext', negated: false },
       { text: 'more', negated: false },
-      { text: 'text', negated: false }
+      { text: 'text', negated: false },
     ]);
     expect(getNumKeywords(parsed)).toEqual(3);
     expect(conditionMap.op1).toEqual([
       {
         value: 'value',
-        negated: false
+        negated: false,
       },
       {
         value: 'value2',
-        negated: false
-      }
+        negated: false,
+      },
     ]);
     expect(conditionMap.op2).toEqual([
       {
         value: "multi, 'word', value",
-        negated: false
-      }
+        negated: false,
+      },
     ]);
     expect(conditionMap.op3).toEqual([
       {
         value: 'value',
-        negated: true
-      }
+        negated: true,
+      },
     ]);
     expect(conditionArray.length).toEqual(4);
     expect(conditionArray).toEqual([
       { keyword: 'op1', value: 'value', negated: false },
       { keyword: 'op1', value: 'value2', negated: false },
       { keyword: 'op2', value: "multi, 'word', value", negated: false },
-      { keyword: 'op3', value: 'value', negated: true }
+      { keyword: 'op3', value: 'value', negated: true },
     ]);
     expect(parsed.toString()).toEqual(
       'op1:value,value2 op2:"multi, \'word\', value" -op3:value sometext more text'
@@ -182,9 +182,9 @@ describe('searchString', () => {
     expect(parsed.getTextSegments()).toEqual([
       {
         text: 'string one',
-        negated: false
+        negated: false,
       },
-      { text: 'string two', negated: false }
+      { text: 'string two', negated: false },
     ]);
     expect(getNumKeywords(parsed)).toEqual(0);
   });
@@ -195,13 +195,13 @@ describe('searchString', () => {
     const conditionMap = getConditionMap(parsed);
     expect(parsed.getTextSegments()[0]).toEqual({
       text: 'my-string',
-      negated: false
+      negated: false,
     });
     expect(conditionMap.op1).toEqual([
       {
         value: 'val',
-        negated: false
-      }
+        negated: false,
+      },
     ]);
   });
 
@@ -213,8 +213,8 @@ describe('searchString', () => {
     expect(getConditionMap(parsed).op1).toEqual([
       {
         value: 'value',
-        negated: false
-      }
+        negated: false,
+      },
     ]);
   });
 
@@ -226,8 +226,8 @@ describe('searchString', () => {
     expect(getConditionMap(parsed).template).toEqual([
       {
         value: 'recruiting: reject email, inexperience',
-        negated: false
-      }
+        negated: false,
+      },
     ]);
   });
 
@@ -239,8 +239,8 @@ describe('searchString', () => {
     expect(getConditionMap(parsed).from).toEqual([
       {
         value: 'aes',
-        negated: false
-      }
+        negated: false,
+      },
     ]);
   });
 
@@ -252,8 +252,8 @@ describe('searchString', () => {
     expect(getConditionMap(parsed).from).toEqual([
       {
         value: "ae's",
-        negated: false
-      }
+        negated: false,
+      },
     ]);
     expect(parsed.toString()).toEqual("from:ae's foobar");
   });
@@ -266,8 +266,8 @@ describe('searchString', () => {
     expect(getConditionMap(parsed).template).toEqual([
       {
         value: " hello 'there': other",
-        negated: false
-      }
+        negated: false,
+      },
     ]);
     expect(parsed.toString()).toEqual('template:" hello \'there\': other" foobar');
   });
@@ -280,8 +280,8 @@ describe('searchString', () => {
     expect(getConditionMap(parsed).template).toEqual([
       {
         value: ' hello "there": other',
-        negated: false
-      }
+        negated: false,
+      },
     ]);
     expect(parsed.toString()).toEqual('template:" hello \\"there\\": other" foobar');
   });
