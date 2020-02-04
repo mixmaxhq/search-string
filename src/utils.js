@@ -32,5 +32,5 @@ function getQuotePairMap(str) {
 }
 
 module.exports = {
-  getQuotePairMap
+  getQuotePairMap,
 };

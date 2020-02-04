@@ -1,9 +1,0 @@
-{
-  "extends": [
-    "eslint-config-mixmax"
-  ],
-  "env": {
-    "es6": true,
-    "node": true
-  }
-}
