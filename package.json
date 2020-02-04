@@ -12,9 +12,9 @@
     "babelBuild": "babel src/ -d dist/node/ --copy-files",
     "babelWatch": "babel --watch src/ -d dist/node/ --copy-files",
     "build": "rm -rf dist/node && npm run babelBuild",
-    "ci": "npm run lint && npm run test && npm run build",
+    "ci": "npm run lint && npm test",
     "lint": "eslint .",
-    "prepublish": "npm run ci",
+    "prepublishOnly": "npm run build",
     "test": "jest",
     "testWatch": "jest --watch"
   },
