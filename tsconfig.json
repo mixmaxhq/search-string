@@ -1,0 +1,7 @@
+{
+  "extends": "@mixmaxhq/ts-config/tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist"
+  },
+  "include": ["src/**/*"]
+}

@@ -1,5 +1,5 @@
 # Dependencies
 node_modules
 
-# Nod 6 Transpiled code
-dist/node
+# Transpiled code
+dist
