@@ -1,5 +1,8 @@
 ## Release History
 
+  * 4.0.0 feat: add typescript
+  
+  
 * 3.1.0 Added `removeEntry` method.
 	
 * 3.0.0 API tidying
