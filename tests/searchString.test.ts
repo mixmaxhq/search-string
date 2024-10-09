@@ -1,7 +1,7 @@
-const SearchString = require('../src/searchString');
+import SearchString from '../src/searchString';
 
-function getConditionMap(searchString) {
-  const map = {};
+function getConditionMap(searchString: SearchString) {
+  const map: Record<string, { value: string; negated: boolean }[]> = {};
   searchString.getConditionArray().forEach(({ keyword, value, negated }) => {
     const mapValue = { value, negated };
     if (map[keyword]) {
@@ -19,10 +19,13 @@ function getNumKeywords(searchString) {
 
 describe('searchString', () => {
   test('empty', () => {
+    // @ts-expect-error - TS doesn't like that we're not passing a string
     expect(SearchString.parse().getConditionArray()).toEqual([]);
     expect(SearchString.parse('').getConditionArray()).toEqual([]);
     expect(SearchString.parse('   ').getConditionArray()).toEqual([]);
+    // @ts-expect-error - TS doesn't like that we're passing null
     expect(SearchString.parse(null).getConditionArray()).toEqual([]);
+    // @ts-expect-error - TS doesn't like that we're passing null
     expect(SearchString.parse(null).getParsedQuery()).toEqual({
       exclude: {},
     });
@@ -302,7 +305,9 @@ describe('searchString', () => {
 
   test('transformTextToCondition', () => {
     const str = '<a@b.com> to:c@d.com';
-    const transform = (text) => (text === '<a@b.com>' ? { key: 'to', value: 'a@b.com' } : null);
+    const transform = (text: string) =>
+      text === '<a@b.com>' ? { key: 'to', value: 'a@b.com' } : null;
+    // @ts-expect-error - TS doesn't like that we're passing a function that does return null
     const parsed = SearchString.parse(str, [transform]);
     expect(parsed.getTextSegments()).toEqual([]);
     expect(getNumKeywords(parsed)).toEqual(1);
@@ -334,11 +339,13 @@ describe('searchString', () => {
     const parsed = SearchString.parse(str);
     expect(parsed.getParsedQuery().foo).toEqual(['bar']);
     expect(parsed.toString()).toEqual('foo:bar');
+    // @ts-expect-error - TS doesn't like that we're accessing a private property
     expect(parsed.isStringDirty).toEqual(false);
 
     parsed.removeEntry('foo', 'qux', false);
 
     expect(parsed.getParsedQuery().foo).toEqual(['bar']);
+    // @ts-expect-error - TS doesn't like that we're accessing a private property
     expect(parsed.isStringDirty).toEqual(false);
   });
 });

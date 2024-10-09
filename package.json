@@ -2,21 +2,17 @@
   "name": "search-string",
   "version": "3.1.0",
   "description": "Another parser for advanced search query syntax.",
-  "main": "index.js",
+  "main": "dist/searchString.js",
+  "typings": "dist/searchString.d.ts",
   "files": [
-    "index.js",
-    "src",
     "dist"
   ],
   "scripts": {
-    "babelBuild": "babel src/ -d dist/node/ --copy-files",
-    "babelWatch": "babel --watch src/ -d dist/node/ --copy-files",
-    "build": "rm -rf dist/node && npm run babelBuild",
     "ci": "npm run lint && npm test",
-    "lint": "eslint .",
+    "lint": "eslint ./src --ext .ts",
     "prepublishOnly": "npm run build",
-    "test": "jest",
-    "testWatch": "jest --watch"
+    "build": "rm -rf dist && tsc",
+    "test": "jest --coverage"
   },
   "author": "Marcus Ericsson <marcus@mixmax.com> (https://mixmax.com)",
   "license": "MIT",
@@ -28,16 +24,17 @@
     "search query"
   ],
   "repository": "git@github.com:mixmaxhq/search-string.git",
-  "dependencies": {},
   "devDependencies": {
+    "@mixmaxhq/jest-coverage-config": "^2.2.3",
     "@mixmaxhq/prettier-config": "^1.0.0",
-    "babel-cli": "^6.26.0",
-    "babel-core": "^6.26.0",
-    "babel-preset-es2015": "^6.24.1",
+    "@mixmaxhq/ts-config": "^3.0.1",
+    "@types/jest": "^29.5.13",
+    "@types/node": "^22.7.4",
     "eslint": "^6.8.0",
     "eslint-config-mixmax": "^4.8.0",
-    "jest": "^21.1.0",
-    "jest-cli": "^21.1.0",
-    "prettier": "^1.19.1"
+    "jest": "^29.7.0",
+    "prettier": "^1.19.1",
+    "ts-jest": "^29.2.5",
+    "typescript": "^5.6.2"
   }
 }

@@ -1,21 +1,42 @@
-const { getQuotePairMap } = require('./utils');
+import { getQuotePairMap } from './utils';
 
-// state tokens
+// State tokens
 const RESET = 'RESET';
 const IN_OPERAND = 'IN_OPERAND';
 const IN_TEXT = 'IN_TEXT';
 const SINGLE_QUOTE = 'SINGLE_QUOTE';
 const DOUBLE_QUOTE = 'DOUBLE_QUOTE';
 
+export interface Condition {
+  keyword: string;
+  value: string;
+  negated: boolean;
+}
+
+export interface TextSegment {
+  text: string;
+  negated: boolean;
+}
+
+export interface ParsedQuery {
+  [key: string]: any;
+  exclude: Record<string, string[]>;
+}
+
 /**
- * SearchString is a parsed search string which allows you to fetch conditions
+ * **SearchString** is a parsed search string which allows you to fetch conditions
  * and text being searched.
  */
 class SearchString {
+  private conditionArray: Condition[];
+  private textSegments: TextSegment[];
+  private string: string;
+  private isStringDirty: boolean;
+
   /**
    * Not intended for public use. API could change.
    */
-  constructor(conditionArray, textSegments) {
+  constructor(conditionArray: Condition[], textSegments: TextSegment[]) {
     this.conditionArray = conditionArray;
     this.textSegments = textSegments;
     this.string = '';
@@ -23,21 +44,24 @@ class SearchString {
   }
 
   /**
-   * @param {String} str to parse e.g. 'to:me -from:joe@acme.com foobar'.
-   * @param {Array} transformTextToConditions Array of functions to transform text into conditions
-   * @returns {SearchString} An instance of this class SearchString.
+   * @param str - String to parse e.g. `'to:me -from:joe@acme.com foobar'`.
+   * @param transformTextToConditions - Array of functions to transform text into conditions.
+   * @returns An instance of the **SearchString** class.
    */
-  static parse(str, transformTextToConditions = []) {
+  static parse(
+    str: string,
+    transformTextToConditions: Array<(text: string) => { key: string; value: string }> = []
+  ): SearchString {
     if (!str) str = '';
-    const conditionArray = [];
-    const textSegments = [];
+    const conditionArray: Condition[] = [];
+    const textSegments: TextSegment[] = [];
 
-    const addCondition = (key, value, negated) => {
-      const arrayEntry = { keyword: key, value, negated };
+    const addCondition = (key: string, value: string, negated: boolean) => {
+      const arrayEntry: Condition = { keyword: key, value, negated };
       conditionArray.push(arrayEntry);
     };
 
-    const addTextSegment = (text, negated) => {
+    const addTextSegment = (text: string, negated: boolean) => {
       let hasTransform = false;
       transformTextToConditions.forEach((transform) => {
         const { key, value } = transform(text);
@@ -51,12 +75,12 @@ class SearchString {
       }
     };
 
-    let state;
-    let currentOperand;
-    let isNegated;
-    let currentText;
-    let quoteState;
-    let prevChar;
+    let state: string;
+    let currentOperand = '';
+    let isNegated = false;
+    let currentText = '';
+    let quoteState: string;
+    let prevChar = '';
 
     const performReset = () => {
       state = RESET;
@@ -144,7 +168,7 @@ class SearchString {
           state = IN_TEXT;
         }
       }
-      prevChar = char;
+      prevChar = char ?? '';
     }
     // End of string, add any last entries
     if (inText()) {
@@ -157,22 +181,22 @@ class SearchString {
   }
 
   /**
-   * @return {Array} conditions, may contain multiple conditions for a particular key.
+   * @returns Conditions array, may contain multiple conditions for a particular key.
    */
-  getConditionArray() {
+  getConditionArray(): Condition[] {
     return this.conditionArray;
   }
 
   /**
-   * @return {Object} map of conditions and includes a special key 'excludes'.
-   *                  Excludes itself is a map of conditions which were negated.
+   * @returns Map of conditions and includes a special key `'exclude'`.
+   * `'exclude'` itself is a map of conditions which were negated.
    */
-  getParsedQuery() {
-    const parsedQuery = { exclude: {} };
+  getParsedQuery(): ParsedQuery {
+    const parsedQuery: ParsedQuery = { exclude: {} };
     this.conditionArray.forEach((condition) => {
       if (condition.negated) {
         if (parsedQuery.exclude[condition.keyword]) {
-          parsedQuery.exclude[condition.keyword].push(condition.value);
+          parsedQuery.exclude[condition.keyword]!.push(condition.value);
         } else {
           parsedQuery.exclude[condition.keyword] = [condition.value];
         }
@@ -188,30 +212,30 @@ class SearchString {
   }
 
   /**
-   * @return {String} All text segments concateted together joined by a space.
-   *                  If a text segment is negated, it is preceded by a `-`.
+   * @returns All text segments concatenated together joined by a space.
+   * If a text segment is negated, it is preceded by a `-`.
    */
-  getAllText() {
+  getAllText(): string {
     return this.textSegments
       ? this.textSegments.map(({ text, negated }) => (negated ? `-${text}` : text)).join(' ')
       : '';
   }
 
   /**
-   * @return {Array} all text segment objects, negative or positive
-   *                 e.g. { text: 'foobar', negated: false }
+   * @returns All text segment objects, negative or positive.
+   * E.g., `{ text: 'foobar', negated: false }`
    */
-  getTextSegments() {
+  getTextSegments(): TextSegment[] {
     return this.textSegments;
   }
 
   /**
    * Removes keyword-negated pair that matches inputted.
    * Only removes if entry has same keyword/negated combo.
-   * @param {String} keywordToRemove Keyword to remove.
-   * @param {Boolean} negatedToRemove Whether or not the keyword removed is negated.
+   * @param keywordToRemove - Keyword to remove.
+   * @param negatedToRemove - Whether or not the keyword removed is negated.
    */
-  removeKeyword(keywordToRemove, negatedToRemove) {
+  removeKeyword(keywordToRemove: string, negatedToRemove: boolean): void {
     this.conditionArray = this.conditionArray.filter(
       ({ keyword, negated }) => keywordToRemove !== keyword || negatedToRemove !== negated
     );
@@ -220,11 +244,11 @@ class SearchString {
 
   /**
    * Adds a new entry to search string. Does not dedupe against existing entries.
-   * @param {String} keyword  Keyword to add.
-   * @param {String} value    Value for respective keyword.
-   * @param {Boolean} negated Whether or not keyword/value pair should be negated.
+   * @param keyword - Keyword to add.
+   * @param value - Value for respective keyword.
+   * @param negated - Whether or not keyword/value pair should be negated.
    */
-  addEntry(keyword, value, negated) {
+  addEntry(keyword: string, value: string, negated: boolean): void {
     this.conditionArray.push({
       keyword,
       value,
@@ -237,11 +261,11 @@ class SearchString {
    * Removes an entry from the search string. If more than one entry with the same settings is found,
    * it removes the first entry matched.
    *
-   * @param {String} keyword  Keyword to remove.
-   * @param {String} value    Value for respective keyword.
-   * @param {Boolean} negated Whether or not keyword/value pair is be negated.
+   * @param keyword - Keyword to remove.
+   * @param value - Value for respective keyword.
+   * @param negated - Whether or not keyword/value pair is negated.
    */
-  removeEntry(keyword, value, negated) {
+  removeEntry(keyword: string, value: string, negated: boolean): void {
     const index = this.conditionArray.findIndex((entry) => {
       return entry.keyword === keyword && entry.value === value && entry.negated === negated;
     });
@@ -253,20 +277,20 @@ class SearchString {
   }
 
   /**
-   * @return {SearchString} A new instance of this class based on current data.
+   * @returns A new instance of this class based on current data.
    */
-  clone() {
-    return new SearchString(this.conditionArray.slice(0), this.textSegments.slice(0));
+  clone(): SearchString {
+    return new SearchString([...this.conditionArray], [...this.textSegments]);
   }
 
   /**
-   * @return {String} Returns this instance synthesized to a string format.
-   *                  Example string: `to:me -from:joe@acme.com foobar`
+   * @returns Returns this instance synthesized to a string format.
+   * Example string: `'to:me -from:joe@acme.com foobar'`
    */
-  toString() {
+  toString(): string {
     if (this.isStringDirty) {
       // Group keyword, negated pairs as keys
-      const conditionGroups = {};
+      const conditionGroups: Record<string, string[]> = {};
       this.conditionArray.forEach(({ keyword, value, negated }) => {
         const negatedStr = negated ? '-' : '';
         const conditionGroupKey = `${negatedStr}${keyword}`;
@@ -280,7 +304,7 @@ class SearchString {
       let conditionStr = '';
       Object.keys(conditionGroups).forEach((conditionGroupKey) => {
         const values = conditionGroups[conditionGroupKey];
-        const safeValues = values
+        const safeValues = values!
           .filter((v) => v)
           .map((v) => {
             let newV = '';
@@ -309,4 +333,4 @@ class SearchString {
   }
 }
 
-module.exports = SearchString;
+export default SearchString;
