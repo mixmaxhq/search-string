@@ -1,4 +1,4 @@
-import { getQuotePairMap } from './utils';
+import { getQuotePairMap } from './utils.js';
 
 // State tokens
 const RESET = 'RESET';
@@ -27,7 +27,7 @@ export interface ParsedQuery {
  * **SearchString** is a parsed search string which allows you to fetch conditions
  * and text being searched.
  */
-class SearchString {
+export default class SearchString {
   private conditionArray: Condition[];
   private textSegments: TextSegment[];
   private string: string;
@@ -332,5 +332,3 @@ class SearchString {
     return this.string;
   }
 }
-
-export default SearchString;

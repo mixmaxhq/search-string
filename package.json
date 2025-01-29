@@ -2,8 +2,16 @@
   "name": "search-string",
   "version": "4.0.0",
   "description": "Another parser for advanced search query syntax.",
-  "main": "dist/searchString.js",
-  "typings": "dist/searchString.d.ts",
+  "type": "module",
+  "main": "./dist/cjs/searchString.js",
+  "module": "./dist/esm/searchString.js",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "import": "./dist/esm/searchString.js",
+      "require": "./dist/cjs/searchString.js"
+    }
+  },
   "files": [
     "dist"
   ],
@@ -11,7 +19,9 @@
     "ci": "npm run lint && npm test",
     "lint": "eslint ./src --ext .ts",
     "prepublishOnly": "npm run build",
-    "build": "rm -rf dist && tsc",
+    "build": "rm -rf dist && npm run build:cjs && npm run build:esm && attw --pack .",
+    "build:cjs": "tsc -p tsconfig.cjs.json && echo '{\"type\":\"commonjs\"}' > ./dist/cjs/package.json",
+    "build:esm": "tsc -p tsconfig.json",
     "test": "jest --coverage"
   },
   "author": "Marcus Ericsson <marcus@mixmax.com> (https://mixmax.com)",
@@ -25,6 +35,7 @@
   ],
   "repository": "git@github.com:mixmaxhq/search-string.git",
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.17.3",
     "@mixmaxhq/jest-coverage-config": "^2.2.3",
     "@mixmaxhq/prettier-config": "^1.0.0",
     "@mixmaxhq/ts-config": "^3.0.1",
