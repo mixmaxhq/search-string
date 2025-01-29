@@ -3,7 +3,6 @@
   "compilerOptions": {
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "rewriteRelativeImportExtensions": true,
   },
   "include": ["src/**/*", "tests/**/*"]
 }

@@ -1,4 +1,4 @@
-import { getQuotePairMap } from './utils.ts';
+import { getQuotePairMap } from './utils.js';
 
 // State tokens
 const RESET = 'RESET';
