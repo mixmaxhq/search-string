@@ -1,6 +1,6 @@
 import { describe, test, expect } from 'vitest';
 
-import { getQuotePairMap } from '../src/utils';
+import { getQuotePairMap } from '../src/utils.js';
 
 describe('utils', () => {
   describe('getQuotePairMap', () => {

@@ -19,9 +19,10 @@
     "ci": "npm run lint && npm test",
     "lint": "eslint ./src --ext .ts",
     "prepublishOnly": "npm run build",
-    "build": "rm -rf dist && npm run build:cjs && npm run build:esm && attw --pack .",
+    "build": "rm -rf dist && npm run build:check-types && npm run build:cjs && npm run build:esm && attw --pack .",
+    "build:check-types": "tsc -p tsconfig.json --noEmit",
     "build:cjs": "tsc -p tsconfig.cjs.json && echo '{\"type\":\"commonjs\"}' > ./dist/cjs/package.json",
-    "build:esm": "tsc -p tsconfig.json",
+    "build:esm": "tsc -p tsconfig.esm.json",
     "test": "vitest --coverage"
   },
   "author": "Marcus Ericsson <marcus@mixmax.com> (https://mixmax.com)",
