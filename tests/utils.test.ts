@@ -1,4 +1,6 @@
-const { getQuotePairMap } = require('../src/utils');
+import { describe, test, expect } from 'vitest';
+
+import { getQuotePairMap } from '../src/utils';
 
 describe('utils', () => {
   describe('getQuotePairMap', () => {

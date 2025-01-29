@@ -1,9 +1,10 @@
 {
   "extends": "@mixmaxhq/ts-config/tsconfig.json",
   "compilerOptions": {
+    "outDir": "./dist/esm",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "outDir": "./dist/esm"
+    "rewriteRelativeImportExtensions": true,
   },
   "include": ["src/**/*"]
 }

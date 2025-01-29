@@ -1,3 +1,5 @@
+import { describe, test, expect } from 'vitest';
+
 import SearchString from '../src/searchString';
 
 function getConditionMap(searchString: SearchString) {

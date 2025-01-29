@@ -1,3 +1,35 @@
 {
-  "extends": ["mixmax/node/withJest"]
+  // We can"t use `mixmax/typescript` here because it hardcodes Jest support,
+  // which isn"t used here.
+  "extends": ["mixmax/node", "plugin:@typescript-eslint/recommended"],
+  "plugins": ["@typescript-eslint"],
+  "parserOptions": {
+    "sourceType": "module",
+    "project": "./tsconfig.json"
+
+  },
+  "rules": {
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_|^next$"
+      }
+    ],
+    "@typescript-eslint/no-floating-promises": "error",
+    "@typescript-eslint/no-for-in-array": "error",
+    "no-implied-eval": "off",
+    "@typescript-eslint/no-implied-eval": "error",
+    "@typescript-eslint/no-misused-promises": "error",
+    "no-return-await": "off",
+    "@typescript-eslint/return-await": ["error", "always"]
+  },
+  "overrides": [
+    {
+      "files": ["**/*.test.ts"],
+      "rules": {
+        "import/first": "off",
+        "import/order": "off"
+      }
+    }
+  ]
 }
