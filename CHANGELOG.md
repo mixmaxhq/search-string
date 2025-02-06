@@ -1,5 +1,8 @@
 ## Release History
 
+  * 4.1.0 Dual-publish both CJS and ESM builds
+  
+  
   * 4.0.0 feat: add typescript
   
   
