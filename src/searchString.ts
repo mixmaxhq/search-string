@@ -19,6 +19,7 @@ export interface TextSegment {
 }
 
 export interface ParsedQuery {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
   exclude: Record<string, string[]>;
 }
@@ -196,7 +197,7 @@ export default class SearchString {
     this.conditionArray.forEach((condition) => {
       if (condition.negated) {
         if (parsedQuery.exclude[condition.keyword]) {
-          parsedQuery.exclude[condition.keyword]!.push(condition.value);
+          parsedQuery.exclude[condition.keyword]?.push(condition.value);
         } else {
           parsedQuery.exclude[condition.keyword] = [condition.value];
         }
@@ -302,9 +303,8 @@ export default class SearchString {
       });
       // Build conditionStr
       let conditionStr = '';
-      Object.keys(conditionGroups).forEach((conditionGroupKey) => {
-        const values = conditionGroups[conditionGroupKey];
-        const safeValues = values!
+      Object.entries(conditionGroups).forEach(([conditionGroupKey, values]) => {
+        const safeValues = values
           .filter((v) => v)
           .map((v) => {
             let newV = '';

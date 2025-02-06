@@ -19,10 +19,11 @@
     "ci": "npm run lint && npm test",
     "lint": "eslint ./src --ext .ts",
     "prepublishOnly": "npm run build",
-    "build": "rm -rf dist && npm run build:cjs && npm run build:esm && attw --pack .",
+    "build": "rm -rf dist && npm run build:check-types && npm run build:cjs && npm run build:esm && attw --pack .",
+    "build:check-types": "tsc -p tsconfig.json --noEmit",
     "build:cjs": "tsc -p tsconfig.cjs.json && echo '{\"type\":\"commonjs\"}' > ./dist/cjs/package.json",
-    "build:esm": "tsc -p tsconfig.json",
-    "test": "jest --coverage"
+    "build:esm": "tsc -p tsconfig.esm.json",
+    "test": "vitest --coverage"
   },
   "author": "Marcus Ericsson <marcus@mixmax.com> (https://mixmax.com)",
   "license": "MIT",
@@ -36,16 +37,14 @@
   "repository": "git@github.com:mixmaxhq/search-string.git",
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.17.3",
-    "@mixmaxhq/jest-coverage-config": "^2.2.3",
-    "@mixmaxhq/prettier-config": "^1.0.0",
+    "@mixmaxhq/prettier-config": "^1.1.0",
     "@mixmaxhq/ts-config": "^3.0.1",
-    "@types/jest": "^29.5.13",
     "@types/node": "^22.7.4",
-    "eslint": "^6.8.0",
-    "eslint-config-mixmax": "^4.8.0",
-    "jest": "^29.7.0",
+    "@vitest/coverage-v8": "^3.0.4",
+    "eslint": "^8.57.1",
+    "eslint-config-mixmax": "^5.2.2",
     "prettier": "^1.19.1",
-    "ts-jest": "^29.2.5",
-    "typescript": "^5.6.2"
+    "typescript": "^5.6.2",
+    "vitest": "^3.0.4"
   }
 }

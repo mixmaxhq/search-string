@@ -1,4 +1,6 @@
-import SearchString from '../src/searchString';
+import { describe, test, expect } from 'vitest';
+
+import SearchString from '../src/searchString.js';
 
 function getConditionMap(searchString: SearchString) {
   const map: Record<string, { value: string; negated: boolean }[]> = {};

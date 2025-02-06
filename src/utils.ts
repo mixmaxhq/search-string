@@ -3,7 +3,7 @@ type QuotePairMap = {
   double: Record<number, boolean>;
 };
 
-function getQuotePairMap(str: string | undefined): QuotePairMap {
+function getQuotePairMap(str?: string | undefined | null): QuotePairMap {
   if (!str) str = '';
   const quotePairMap: QuotePairMap = { single: {}, double: {} };
 
