@@ -1,6 +1,6 @@
 {
   "name": "search-string",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "description": "Another parser for advanced search query syntax.",
   "type": "module",
   "main": "./dist/cjs/searchString.js",
