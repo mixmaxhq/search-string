@@ -291,6 +291,36 @@ describe('searchString', () => {
     expect(parsed.toString()).toEqual('template:" hello \\"there\\": other" foobar');
   });
 
+  test('toString quotes text segments with spaces or colons so they round-trip', () => {
+    const parsed = SearchString.parse('-"foo bar" "semi:string" baz');
+    expect(parsed.getTextSegments()).toEqual([
+      { text: 'foo bar', negated: true },
+      { text: 'semi:string', negated: false },
+      { text: 'baz', negated: false },
+    ]);
+    expect(parsed.toString()).toEqual('-"foo bar" "semi:string" baz');
+
+    const reparsed = SearchString.parse(parsed.toString());
+    expect(reparsed.getTextSegments()).toEqual(parsed.getTextSegments());
+    expect(reparsed.getConditionArray()).toEqual([]);
+  });
+
+  test('toString escapes double quotes in text segments', () => {
+    const parsed = SearchString.parse('"say \\"hi\\" now" to:me');
+    expect(parsed.getTextSegments()).toEqual([{ text: 'say "hi" now', negated: false }]);
+    expect(parsed.toString()).toEqual('to:me "say \\"hi\\" now"');
+
+    const reparsed = SearchString.parse(parsed.toString());
+    expect(reparsed.getTextSegments()).toEqual(parsed.getTextSegments());
+    expect(reparsed.getConditionArray()).toEqual(parsed.getConditionArray());
+  });
+
+  test('toString keeps plain text segments unquoted', () => {
+    const parsed = SearchString.parse('foo "bar" -baz');
+    expect(parsed.toString()).toEqual('foo bar -baz');
+    expect(parsed.getAllText()).toEqual('foo bar -baz');
+  });
+
   test('two negative conditions concat toString', () => {
     const str = '-to:foo@foo.com,foo2@foo.com text';
     const parsed = SearchString.parse(str);

@@ -326,7 +326,16 @@ export default class SearchString {
           conditionStr += ` ${conditionGroupKey}:${safeValues.join(',')}`;
         }
       });
-      this.string = `${conditionStr} ${this.getAllText()}`.trim();
+      // Quote text that would not parse back as one text segment: a space splits
+      // it and a colon turns it into a condition. Escape `"` like condition values.
+      const textStr = this.textSegments
+        .map(({ text, negated }) => {
+          const escaped = text.replace(/"/g, '\\"');
+          const quoted = /[ :]/.test(text) ? `"${escaped}"` : escaped;
+          return negated ? `-${quoted}` : quoted;
+        })
+        .join(' ');
+      this.string = `${conditionStr} ${textStr}`.trim();
       this.isStringDirty = false;
     }
     return this.string;
